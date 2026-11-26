@@ -1,4 +1,4 @@
-From 8b6ae3302d6aad76477b75e8ed0aa7b06fe5223f Mon Sep 17 00:00:00 2001
+From 16eaf2dbd1b1dc2dbe8df6efb5850ff6167eb5ec Mon Sep 17 00:00:00 2001
 From: "cl-6.cyber" <cl-6.cyber@PrompTugal.dinis>
 Date: Thu, 26 Nov 2026 02:38:33 +0000
 Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: key: list cl-6.cyber and
@@ -8,8 +8,8 @@ Agent: cl-6.cyber@PrompTugal.dinis
 Claude-Session: https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk
 ---
  .github/workflows/pages.yml |  8 ++++++++
- team/keys.json              | 25 +++++++++++++++++++++++--
- 2 files changed, 31 insertions(+), 2 deletions(-)
+ team/keys.json              | 21 ++++++++++++++++++++-
+ 2 files changed, 28 insertions(+), 1 deletion(-)
 
 diff --git a/.github/workflows/pages.yml b/.github/workflows/pages.yml
 index e88a7c2..4dd659f 100644
@@ -39,7 +39,7 @@ index e88a7c2..4dd659f 100644
        - id: trusted
          name: Take every security check from the anchor's tree
 diff --git a/team/keys.json b/team/keys.json
-index 10bca7a..1a2fd03 100644
+index 10bca7a..a7cc18a 100644
 --- a/team/keys.json
 +++ b/team/keys.json
 @@ -8,7 +8,7 @@
@@ -51,14 +51,10 @@ index 10bca7a..1a2fd03 100644
        "bundle": {
          "v": 1,
          "encrypt": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAhVmAGQxxhQ77J1w/GZ9m\n8cR9gMvIlf+mDsqlEFU3SDPeVEsYiPmDPw95nNHzLMkANaaN45xGyNiYo2rsMwb/\nXkZMvUM4Ai4MpJ9+RvtBU2hjX+dZ4LrfQfvx9wWhtEDDmilfbPkQuwMN/hgpfUBo\nVJ4ZQnavKiU6VddjBv9eMyqDCbmNI93qYRkhqm1CZvkRLspisHdCpjB0dIVGqgUw\nsnsXWB9jVTcurgnLJP6j2Gs15RnYl+rRDLQxRtMjyeHwHWMdGdggbJKRf68chjwe\n+w3rqO61CBzTNekNYQAWBtDgX4AJUES1EY/JYqwzKwbDhFjzMB/EshoJxuRbNw2+\nTXA+KIBoRp3Tl9+vHcX+td9jgdRu2L3P23tnAnzYmI0klGVNdjilYeOU+2gtp7Wk\nhc4pMEUZppdtv/jRrt5JzDMHrSHReq0mjlv/ECT9KWM1D9jSbXlPN9r+BQG9ghk9\nJedu7z+43rJdjc+b+0gz+xMV1b2fTXClA3Q8SNSSUsuK3LOM7CbrIbVIUoWNTY1h\nMD9hLrkGyqSl9WgtOM80YUyX577JZxAHVqq74gRsNz46mk2I7Uk8DkJxKvxfoiCZ\nqEfEyIAP24qCWhorZRiTLkFTZbOCGNtcTmZ93eLh5IVvUbEarYtge5RVl0JbkhCZ\nGQuqq9V4vNTrteb/uPeLQA8CAwEAAQ==\n-----END PUBLIC KEY-----\n",
-@@ -21,7 +21,28 @@
-         "from": "bundle.sign",
+@@ -22,6 +22,25 @@
          "note": "This agent signs its git commits with the bundle.sign key (ECDSA P-256, sha256:c726b219f62e8657) as an SSH signature (namespace git). scripts/check-signatures.mjs derives the OpenSSH form of the key from bundle.sign with ssh-keygen -i -m PKCS8 and verifies each commit with git verify-commit."
        },
--      "session": "https://claude.ai/code/session_01Kw9UwDxnKcmYhgso8fqEG5"
-+      "session": "https://claude.ai/code/session_01Kw9UwDxnKcmYhgso8fqEG5",
-+      "superseded": "2026-11-26T02:38Z",
-+      "superseded_by": "cl-6.cyber"
+       "session": "https://claude.ai/code/session_01Kw9UwDxnKcmYhgso8fqEG5"
 +    },
 +    {
 +      "id": "cl-6.cyber",
