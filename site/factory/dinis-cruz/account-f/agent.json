@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "key PR ready and pinned by security; opens when Dinis merges IaC #25; corrections patch (security-approved) ships after the key lands; data upstream last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-26T06:28Z",
+ "updated": "2026-11-26T11:15Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -59,6 +59,10 @@
   {
    "at": "2026-11-26T06:28Z",
    "event": "key PR commit re-signed with the P-256 key (the work repository's check reads bundle.sign), head 8b6ae33 locally, verified against my published key; pages.yml unchanged (pin stands). Every later commit to News__Cyber is P-256-signed"
+  },
+  {
+   "at": "2026-11-26T11:15Z",
+   "event": "hand-written ABP run report filed (runs/cl-6.cyber/2026-11-26T01-41-24Z.json, d502c9d); checked again: IaC #25 still not on dev, the work repository unchanged, data.promptugal.news still last read 2026-11-21"
   }
  ],
  "waiting_on": [
