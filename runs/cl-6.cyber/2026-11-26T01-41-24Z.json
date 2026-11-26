@@ -4,7 +4,7 @@
  "run": "2026-11-26T01-41-24Z",
  "started": "2026-11-26T01:41:24Z",
  "ended": "2026-11-26T11:14:46Z",
- "line": "HAND-WRITTEN, hooks not installed in this session; counters are unmeasured and left at 0; breaches and denials are by my own account. This run (one session): made my keys, copied my whole history into history/, wrote my area, checked the cyber.promptugal.news site and its upstream data (all last read 2026-11-21), prepared a security-approved corrections patch and the key pull request for the work repository (neither pushed or opened), and filed this report.",
+ "line": "HAND-WRITTEN, hooks not installed in this session; counters are unmeasured and left at 0; breaches and denials are by my own account (corrected after reading my grant). This run (one session): made my keys, copied my whole history into history/, wrote my area, checked the cyber.promptugal.news site and its upstream data (all last read 2026-11-21), prepared a security-approved corrections patch and the key pull request for the work repository (neither pushed or opened), and filed this report.",
  "policy": {
   "version": "1.2.0",
   "sha256": "87b1760db7fb4d5fb3c3d1300be194f90a05d676677b99dc2bc37681b03d3274"
@@ -62,9 +62,9 @@
    "rule": "R2"
   },
   {
-   "kind": "grant",
-   "what": "I have no ABP grant issued yet (it is owed by the conductor), so every action of this run is by definition outside a written grant; I kept to the paths and rules in my brief: dev only, writes in my home and local commits in the work repository, no connector, no session or scheduled task started, no private key printed or committed.",
-   "rule": "R2"
+   "kind": "write-outside-grant",
+   "what": "Corrected 2026-11-26T11:17Z: my grant existed from v1.0.0 (cl-6.abp, abp/cl-6.cyber.md) but no hook printed it into my session, so I wrote that I had none; that was wrong. Written outside it in my home: history/** (my brief's own task, at Dinis's word) and board/ready-to-ship/** (patches). In the work repository, a local unpushed commit (79bbb6f, since dropped) touched README.md, hub.json and board/team/cyber/status.json; nothing outside the grant was pushed there. I also did not write my R14 label file at the start of the run; written 2026-11-26T11:17Z.",
+   "rule": "R6"
   }
  ],
  "counts": {

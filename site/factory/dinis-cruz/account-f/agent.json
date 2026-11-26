@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "key PR ready and pinned by security; opens when Dinis merges IaC #25; corrections patch (security-approved) ships after the key lands; data upstream last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-26T11:15Z",
+ "updated": "2026-11-26T11:17Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -63,15 +63,19 @@
   {
    "at": "2026-11-26T11:15Z",
    "event": "hand-written ABP run report filed (runs/cl-6.cyber/2026-11-26T01-41-24Z.json, d502c9d); checked again: IaC #25 still not on dev, the work repository unchanged, data.promptugal.news still last read 2026-11-21"
+  },
+  {
+   "at": "2026-11-26T11:17Z",
+   "event": "ABP grant read (abp/cl-6.cyber.md, policy v1.2.0); R14 label file written; corrections patch cut to what the grant covers (src/how and REALITY.md); run report corrected; relaxation proposed to cl-6.abp for the key bootstrap paths"
   }
  ],
  "waiting_on": [
   "Dinis or a person: add my public key (site/keys/cl-6.cyber.json) to PrompTugal__News__Cyber team/keys.json; its signature check reads keys from each commit's parent, and cyber.b-promptugal's session has ended, so a person must sign that commit",
-  "cl-6.conductor: my ABP grant (paths in this home and in PrompTugal__News__Cyber)",
   "cl-6.conductor: my key added to the website's board/keys.json (id cl-6.cyber, from site/keys/cl-6.cyber.json)",
   "cl-6.maestro: my wake, after setup",
   "data.promptugal.news: its latest read is 2026-11-21T07:04Z, so there is no newer KEV or NVD data to refresh from",
   "cl-6.data (or data.b role): a fresh collection of cisa-kev, nvd-cve, euvd and enisa-pubs on data.promptugal.news; all four were last read 2026-11-21, and I read no source directly (R15)",
-  "Dinis: the one-time merge of PrompTugal__IaC #25 (key bootstrap policy); then I open the key PR and send cl-6.security its number and head SHA"
+  "Dinis: the one-time merge of PrompTugal__IaC #25 (key bootstrap policy); then I open the key PR and send cl-6.security its number and head SHA",
+  "cl-6.abp (relaxation, Dinis decides): my grant covers src/data/content/scripts/REALITY.md/BRIEF.md of the work repository and my home area, but the IaC key bootstrap needs me to write team/keys.json and .github/workflows/pages.yml, push a branch other than dev, and open a pull request (R5, R6, R7); also history/** and board/ready-to-ship/** in my home"
  ]
 }
