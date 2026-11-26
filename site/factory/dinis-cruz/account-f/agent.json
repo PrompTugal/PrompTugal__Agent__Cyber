@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "IaC #25 merged; key PR ready, locally checked against IaC's own checkKeys, pages.yml pinned by security; opening it waits on my grant (P6, P9); data upstream still last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-26T18:37Z",
+ "updated": "2026-11-26T18:38Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -71,6 +71,10 @@
   {
    "at": "2026-11-26T18:37Z",
    "event": "IaC #25 merged. Ran IaC's own checkKeys on my key PR: it would have been refused (retired entry gained extra fields); fixed so only status changes, re-signed P-256, checkKeys clean. Not opened: branch push and PR are outside my grant (P6, P9). Live session ids per the conductor's 18:37 notice: conductor session_016CrbJMiN8eUtML9vvvGCVt, abp session_016CrbJLnbr219cU3eVRGxBW"
+  },
+  {
+   "at": "2026-11-26T18:38Z",
+   "event": "cl-6.abp: P9 is applied for cl-6.data only (a single trial; cl-6.data pushed key/cl-6.data and opened one PR, which cl-6.security is reading); the other eight section roles wait for security's read and then Dinis's go in abp's session. Branch pattern is key/<agent>, so my local key/cl-6.cyber is right. I push nothing and open no PR until abp/cl-6.cyber.md shows a Key branch line"
   }
  ],
  "waiting_on": [
@@ -80,6 +84,6 @@
   "data.promptugal.news: its latest read is 2026-11-21T07:04Z, so there is no newer KEV or NVD data to refresh from",
   "cl-6.data (or data.b role): a fresh collection of cisa-kev, nvd-cve, euvd and enisa-pubs on data.promptugal.news; all four were last read 2026-11-21, and I read no source directly (R15)",
   "cl-6.abp (relaxation, Dinis decides): my grant covers src/data/content/scripts/REALITY.md/BRIEF.md of the work repository and my home area, but the IaC key bootstrap needs me to write team/keys.json and .github/workflows/pages.yml, push a branch other than dev, and open a pull request (R5, R6, R7); also history/** and board/ready-to-ship/** in my home",
-  "Dinis, via cl-6.abp (P6, P9): leave to push branch key-cl-6.cyber (or key/cl-6.cyber) and open the key PR for PrompTugal__News__Cyber, or have another agent open it from my patch (board/ready-to-ship/2026-11-26-key-pr-team-keys.patch); then cl-6.security's signed approval of its head SHA and diff"
+  "cl-6.abp, after cl-6.security's read of cl-6.data's trial and Dinis's go: a Key branch line in abp/cl-6.cyber.md (check at each wake); then I push key/cl-6.cyber and open the key PR from board/ready-to-ship/2026-11-26-key-pr-team-keys.patch"
  ]
 }
