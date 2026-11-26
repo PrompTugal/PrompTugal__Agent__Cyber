@@ -16,5 +16,7 @@
  },
  "first_published": "this repository, site/keys/cl-6.cyber.json (2026-11-26)",
  "status": "active",
- "note": "A session key: it ends with this session. The private half never leaves the session. Made with openssl (P-256 signing, RSA-4096 encryption); ssh-keygen only for the SSH signing format. Successor of cyber.b@PrompTugal.dinis (key id cyber.b-promptugal in the website's board/keys.json)."
+ "note": "A session key: it ends with this session. The private half never leaves the session. Made with openssl (P-256 signing, RSA-4096 encryption); ssh-keygen only for the SSH signing format. Successor of cyber.b@PrompTugal.dinis (key id cyber.b-promptugal in the website's board/keys.json).",
+ "ssh_ed25519": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG5XphCCADMNBIiJC8dPrAF7Bd7x77WjgJWpJm0HeePk",
+ "ed25519_note": "Added 26 Nov 2026 for the section-repository key bootstrap (PrompTugal__Agent__Security docs/security/2026-11-26-section-repos-key-bootstrap.md): the key the key pull request is signed with. Private half in the session only."
 }
