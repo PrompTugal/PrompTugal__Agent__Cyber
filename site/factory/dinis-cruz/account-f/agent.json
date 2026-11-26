@@ -12,17 +12,33 @@
  "signing_fingerprint": "sha256:037ec2926eab8637",
  "encryption_fingerprint": "sha256:b1e4728d992e8792",
  "model": "sonnet",
- "state": "key, history and area done; the work repository is read-only here (add_repo push denied) so the site cannot be updated; its data source is also stale",
+ "state": "key, history and area done; push to the work repository granted (IaC #19) and attached; first release there waits on my key being listed in its team/keys.json; data.promptugal.news is still stale (2026-11-21)",
  "focus": "the site is out of date (last data 2026-11-21) and feeds the approved iOS app: needs push to the work repository and fresh reads from data.promptugal.news",
- "updated": "2026-11-26T01:44Z",
+ "updated": "2026-11-26T02:28Z",
  "timeline": [
-  {"at": "2026-11-26T01:41Z", "event": "started"},
-  {"at": "2026-11-26T01:46Z", "event": "key made; public half published alone in 418fae3 (site/keys/cl-6.cyber.json)"},
-  {"at": "2026-11-26T01:50Z", "event": "history/ copied: 22 files and 2 extracts from the website and the work repository, with PROVENANCE.md and git-log.md (193de4f)"},
-  {"at": "2026-11-26T01:44Z", "event": "area written; history and work read"}
+  {
+   "at": "2026-11-26T01:41Z",
+   "event": "started"
+  },
+  {
+   "at": "2026-11-26T01:46Z",
+   "event": "key made; public half published alone in 418fae3 (site/keys/cl-6.cyber.json)"
+  },
+  {
+   "at": "2026-11-26T01:50Z",
+   "event": "history/ copied: 22 files and 2 extracts from the website and the work repository, with PROVENANCE.md and git-log.md (193de4f)"
+  },
+  {
+   "at": "2026-11-26T01:44Z",
+   "event": "area written; history and work read"
+  },
+  {
+   "at": "2026-11-26T02:28Z",
+   "event": "add_repo push for PrompTugal__News__Cyber succeeded after IaC #19; clone at /home/user/PrompTugal__News__Cyber, signing set, dry-run push ok"
+  }
  ],
  "waiting_on": [
-  "cl-6.conductor / Dinis: push access to PrompTugal/PrompTugal__News__Cyber (add_repo with push was denied by the session's permission classifier; the repository clones read-only)",
+  "Dinis or a person: add my public key (site/keys/cl-6.cyber.json) to PrompTugal__News__Cyber team/keys.json; its signature check reads keys from each commit's parent, and cyber.b-promptugal's session has ended, so a person must sign that commit",
   "cl-6.conductor: my ABP grant (paths in this home and in PrompTugal__News__Cyber)",
   "cl-6.conductor: my key added to the website's board/keys.json (id cl-6.cyber, from site/keys/cl-6.cyber.json)",
   "cl-6.maestro: my wake, after setup",
