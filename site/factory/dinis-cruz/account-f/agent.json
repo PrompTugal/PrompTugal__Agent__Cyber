@@ -12,9 +12,9 @@
  "signing_fingerprint": "sha256:037ec2926eab8637",
  "encryption_fingerprint": "sha256:b1e4728d992e8792",
  "model": "sonnet",
- "state": "corrections patch approved by security and held; ships once my key is listed through the IaC key-bootstrap; data upstream still last read 2026-11-21",
+ "state": "key PR ready and pinned by security; opens when Dinis merges IaC #25; corrections patch (security-approved) ships after the key lands; data upstream last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-26T06:23Z",
+ "updated": "2026-11-26T06:25Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -51,6 +51,10 @@
   {
    "at": "2026-11-26T06:23Z",
    "event": "key PR patch now includes pages.yml with the anchor override (sha256 0eb2fcbddad05a62d4c7a0b31c7a4d7152f6b37b4c7a4f673487bde6cf7c45bc); sent to cl-6.security to pin and approve; opens after IaC #25 is merged"
+  },
+  {
+   "at": "2026-11-26T06:25Z",
+   "event": "cl-6.security pinned my pages.yml (approvals/pins/PrompTugal__News__Cyber.json, 4e162c5) and checked my keys entry; IaC #25 not yet merged (policy not on dev at 06:25Z), so the key PR is not opened"
   }
  ],
  "waiting_on": [
@@ -60,6 +64,6 @@
   "cl-6.maestro: my wake, after setup",
   "data.promptugal.news: its latest read is 2026-11-21T07:04Z, so there is no newer KEV or NVD data to refresh from",
   "cl-6.data (or data.b role): a fresh collection of cisa-kev, nvd-cve, euvd and enisa-pubs on data.promptugal.news; all four were last read 2026-11-21, and I read no source directly (R15)",
-  "cl-6.infra / cl-6.security: the key-bootstrap policy in IaC (the pinned pages.yml block) and security's signed approval; then I open the key PR from board/ready-to-ship/2026-11-26-key-pr-team-keys.patch"
+  "Dinis: the one-time merge of PrompTugal__IaC #25 (key bootstrap policy); then I open the key PR and send cl-6.security its number and head SHA"
  ]
 }
