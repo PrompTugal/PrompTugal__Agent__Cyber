@@ -1,0 +1,90 @@
+{
+  "agent": "cyber.b@PrompTugal.dinis",
+  "site": "https://cyber.promptugal.news",
+  "updated": "2026-11-21T08:24:00Z",
+  "state": "live: worldwide totals from CISA KEV (weekly) and NVD (24-hour snapshots); the Portugal lens not built yet; ENISA on hold",
+  "passes": "first run: all ran, AppSec clean. Wake 22:18 UTC: opening conductor and security pre-review (go), AppSec post-review (one medium and three lows, all fixed), closing conductor (status and debrief fixed). Wake 07:18 UTC: opening and closing conductor, AppSec post-review (two lows fixed). Wake 10:18 UTC: opening conductor (nothing new), security pre-review (must-haves met), AppSec post-review (three lows fixed), closing conductor. Wake 13:18 UTC: opening conductor (nothing new; EUVD on the register), security pre-review, AppSec post-review (one medium, four lows, all fixed), closing conductor. Wake 16:18 UTC: AppSec post-review of the CI hardening (nothing blocking), the fix tested before release. Wake 19:18 UTC: opening conductor (clear; REALITY lacked the cameras-and-map entry, added), security pre-review (eight points; exceptions now pin the target, --no-renames, checkout must be AFTER, cat-file), AppSec post-review (no high or medium; four lows: two tests and an id check added, one test kept as a smoke check, SHA-256 fails closed), closing conductor. Wake 08:18 UTC (20 Nov): opening conductor (clear), security pre-review (seven points; pins from the registry only, CSP on /london/, load order, provenance note), AppSec post-review (no high or medium; four lows: review match tightened, off-state wording, code licence recorded, build-wiring test not added), closing conductor. Wake 19:18 UTC (20 Nov): opening checks by me (no HOLD, nothing new from Dinis, no library requests); a test-only change, so no separate pre-review; AppSec post-review (no blocking findings; two weak-wording notes on the assertions, accepted); closing check by me. Wake 08:18 UTC (21 Nov): opening checks by me (no HOLD, nothing new from Dinis, no library requests); security pre-review (ten points, applied: escaping, framing, validation, aggregates only); AppSec post-review (two mediums and five lows, all applied: \"typical use (not exposure)\", computed evidence for general-IT rules, two industrial reasons softened to their evidence, unclassed vendors computed, required fields checked, distinct test messages, Dinis's quote not presented as approval); closing check by me.",
+  "done": [
+    "Key made with sgit pki keygen; public bundle in team/keys.json (id cyber.b-promptugal)",
+    "Commit check accepts role@PrompTugal.dinis (exact domain), its own commit",
+    "Pages: pulse (no figures), /how/ (the limits), /sources/ and a page per source (CISA KEV, NVD, CVE.org, ENISA), /security/, /api/ with OpenAPI 3.1; masthead, sites rail, footer with principles, report and take-down",
+    "Threat models: docs/threat-models/site-build.md, cyber-pulse-reader.md (draft)",
+    "Library requests channel read: none addressed to cyber.b@",
+    "conductor.b@ is listing cyber.b-promptugal in PrompTugal__News__Website board/keys.json (its reply, about 21:00 UTC)",
+    "/preview.svg made at each build and /preview.png for social cards (the sites bar guidance, 22:00 UTC); PNG refreshed by the lead at release, not by CI",
+    "The pulse reader (scripts/pulse-read.mjs) and the first figures on the home page: worldwide KEV additions per week, NVD 24-hour snapshot by band; floor of 5 everywhere; append-only floored history (wake 22:18 UTC)",
+    "Meter answered by Dinis (about 23:45 UTC, PrompTugal__News__Website board/guidance/2026-11-18-billing-only-on-the-main-site.md): no billing on this site; the masthead chip now says free, no billing",
+    "Dinis's answers recorded (board/team/cyber/briefs/2026-11-18-dinis-answers.md, about 23:40 UTC): sector mapping yes; ENISA yes (asked of data.b@); floor of 5 dropped; meter already closed",
+    "Commits signed with cyber.b-promptugal's published key and naming the session; gate scripts/check-signatures.mjs in release.sh and CI (Dinis, about 23:55 UTC; c8fff24)",
+    "The data explorer /explore/: charts, browse every KEV and NVD record, graph, SQL in the browser (f53972c)",
+    "Dinis agreed the name cyber.b@PrompTugal.dinis and the vendor list basis: Portuguese vendors plus products bought by Portuguese public bodies per base.gov.pt (about 23:55 UTC)",
+    "sites bar 1.1.0 installed (cleared by conductor.b@ 00:55 UTC): vendored, hash-checked, rendered at build, old rail removed; /preview.svg 320x180 from designer@'s template",
+    "Data in the browser on the home page (guidance 2026-11-19-load-the-data-in-the-browser.md): live KEV and NVD reads with checks, built figures as fallback, read times and stale marks, exact-host CSP",
+    "Sites bar 1.1.1 installed (cleared by security@): full SRI pins from the registry, renderer imported only after all three match; 1.1.0 removed",
+    "security@'s five signed-commit controls checked: no name exemption; parent keys; every commit incl. merges; one failure refuses the range before deploy; Agent: and full Claude-Session: must match the key",
+    "Nearly everything clickable (Dinis, about 02:00 UTC): filter links in the address on every bar, value and node in /explore/, a page per CVE, home-page weeks and bands link into the explorer",
+    "The CVE store (Dinis, between 02:00 and 02:10 UTC): a JSON file per KEV CVE with every version of its KEV entry and NVD record, pages at /cve/, two requests per run whatever the number tracked, gaps recorded",
+    "CVE store reads data.b@'s daily nvd-kev baseline: all 1,786 KEV CVEs have their NVD record; gaps close at the next daily read",
+    "Sites bar 1.2.0 installed (cleared by security@, 055e6c1430): vendored files match the registry's full pins; 1.1.1 removed; masthead nav CSS scoped so the bar scrolls sideways on phones",
+    "Wake 07:18 UTC: the bar's pin check reads both registry shapes (flat today, .integrity after dev@'s reshape); a malformed entry stops the build; 375 px checked on eight pages",
+    "Sites bar 1.2.1 installed (security@, 2d812d6da): pins match versions[\"1.2.1\"].integrity; 375 px checked on eight pages",
+    "Wake 10:18 UTC: new CVEs per complete UTC day on the pulse (history nvd-daily.json, 20 tests); security pre-review and AppSec post-review by Sonnet sub-agents, three low findings fixed",
+    "Wake 13:18 UTC: the EU view (ENISA EUVD) on the pulse, aggregates only, never added to NVD; security pre-review and AppSec post-review (one medium, four lows, all fixed); 32 tests",
+    "Signature check: pinned trusted base, unrelated histories and orphans refused, checker run from the last release (release.sh and CI), CI fails closed; 9 tests; AppSec post-review: one high (CI fallback ran the old checker) and one medium (a pushed tag could pick the checker), both fixed",
+    "Signing controls 6 and 7 complete: shallow clones refused (checker, release.sh, CI); 12 tests",
+    "Signing controls 7 widened and 8: trailers, signatures, leak scan and exemptions from the last release (release.sh and CI), fail closed; 14 tests",
+    "security@'s third ruling: CI checks from BEFORE only; 19 tests incl. the CI step run on a throwaway repo",
+    "security@'s fourth ruling: CI anchor = last successful github-pages deployment; checks from its tree; range anchor..AFTER; 24 tests",
+    "Control 9: checks in their own CI jobs that run no pushed code; site to the leak scan as data only; 29 tests",
+    "CI anchor = head_sha of the latest successful push run of pages.yml on dev (security@'s sixth ruling)",
+    "Peers' findings fixed: scanned bytes = deployed bytes; no symlinks followed; binary files scanned for exact shapes; .gitattributes and exemptions from the anchor; tests ignore comments",
+    "live.b@'s findings: site downloaded to temp and vetted before moving; pushed _site and .gitattributes refused; anchor requires verify and leakscan jobs passed; check, deploy and tag only on dev",
+    "Wake 16:18 UTC: CI fixed (an apostrophe in the anchor lookup broke a208ceb's run); test added; AppSec post-review of the CI hardening: nothing blocking",
+    "Check jobs ignore pushed git attributes (GIT_ATTR_SOURCE = empty tree, git 2.42+ enforced)",
+    "git version check fails closed (numeric fields required), tested against a stub git",
+    "Twice a day (Dinis, about 16:30 UTC): stale mark moved to 13 hours",
+    "Control 10, no symlinks (security@ ed70bd996, relayed by conductor.b@ 16:50 UTC): CI's verify job refuses a symlink added or changed in any commit since the anchor, in the pushed tree or in the checkout, unless scripts/symlink-exceptions.json at the anchor lists its path, target and reason; paths compared as whole byte strings read NUL-separated. 47 signature-check cases. None listed today; the leak scan still refuses any tracked symlink, so a first exception also needs security@'s word on the leak scan",
+    "The shared map (Dinis, 19 Nov 17:40 UTC): ptmap 1.0.2 vendored from PrompTugal__News__Website design/shared-map/v1.0.2/ (758810f86) and drawn in a new \"Where\" section on the home page, with a London inset linking to a new /london/ page; no dots (every figure is worldwide) and no EU inset (EUVD paused). No pin kept in the repository: each build checks both files against the registry's map.versions[\"1.0.2\"] pins and review; the map is left out when the registry cannot be read. 11 shared-map test cases",
+    "The shared map's build wiring is tested (AppSec post-review low, 20 Nov 08:23 UTC): a whole build in a throwaway copy with fetch stubbed ships no map tags when the registry cannot be read, and puts them in, script before init, when the pins match; 14 shared-map cases. Data refreshed the same wake (010d1db): pulse, CVE store (8 new versions), preview",
+    "A proposed mapping of CISA KEV products to classes of use, published at /sectors/ with its rules and reasons (src/api/v1/sectors/mapping.json; counts in /api/v1/sectors/index.json). Of 1,790 CVEs on KEV (read 2026-11-21 07:04 UTC): general-purpose IT 1,201 (67.1%, 32 vendors), industrial or building control 5, not classed yet 584 (32.6%). Marked a proposal, not sector exposure; not approved by Dinis. A fault in the mapping stops the build; 12 test cases"
+  ],
+  "next": [
+    "EU view (ENISA EUVD) paused at about 13:36 UTC: rights@ has not cleared it (R10; a person must read ENISA's legal notice in a browser and quote the reuse and credit clauses; rights@ has put that to Dinis). Restore it only when rights@ and Dinis clear it: set EUVD_ON in scripts/pulse-read.mjs and restore the footer credit. Never read www.enisa.europa.eu by machine. New sources: terms on the register before the first read (R15)",
+    "CVE store: run node scripts/cve-store.mjs in each wake before a release and commit what it writes (no timers: conductor.b@, 02:17 UTC); ask data.b@ for a date-range read only for a gap that touches a CVE no longer on KEV",
+    "Each wake: if the build log or /version.json \"off\" says \"sites bar <version> off: the registry names <newer>\", copy that line into status.json and upgrade the bar once security@ has cleared the new version",
+    "From data.b@: ENISA publications /api/v1/enisa-pubs/latest.json into the pulse, the explorer and the source pages; weekly NVD totals once the first whole week (Mon to Sun) of complete days is kept",
+    "The list of vendors relevant to Portugal (agreed): Portuguese vendors, and products bought by Portuguese public bodies per base.gov.pt (read from data.b@), each with its reason; then the Portugal lens on the pulse and in the explorer",
+    "Predictions (show-the-past guidance): ask data.b@ to register and collect EPSS; then keep its scores as shown and check them against CISA KEV additions after 30 days Keep them in data/predictions/predictions.jsonl (append-only JSON Lines, prediction and outcome lines, in the library's form: library.promptugal.news/api/v1/predictions/form.json); when the first line exists, tell library.b@ (session_01Kw9UwFNC1sX4AKoWo4XhEP) the repo name so it imports it as one PRED series. None yet: EPSS waits on Dinis's decision on FIRST's terms.",
+    "Run node scripts/pulse-read.mjs, node scripts/cve-store.mjs, then node scripts/preview-png.mjs, before each release (the readers are not in CI)",
+    "Publish the list of vendors relevant to Portugal, with reasons (vendor and product names only), then the Portugal lens of both series",
+    "Observability: make the 'cyber' lane on account B (model: civic's tools/obs-setup-civic.py), seal its credentials to conductor.b-promptugal with sgit pki encrypt, add obs.js; a public obs.json may need Dinis's yes for the leak scan (conductor.b@, 18 Nov 2026, about 21:00 UTC) No IP-based location, ever: country only, from the browser's time zone through a fixed table, no network call (Dinis, about 03:15 UTC 19 Nov, via conductor.b@; Website board/guidance/2026-11-19-no-ip-lookup-predictions-and-small-decisions.md).",
+    "An OpenAPI per source, listed in data.promptugal.news's Swagger of Swaggers",
+    "London (Dinis, about 22:20 UTC, PrompTugal__News__Website board/guidance/2026-11-18-london.md): a UK view beside Portugal's, same limits, once data.b@ has NCSC advisories on the register with terms checked and collected; nothing read by cyber.b@ until then",
+    "CNPD, Shadowserver, Cloudflare Radar, RIPEstat, abuse.ch stay unread: whether a free sub-site may read non-commercial sources is a licence question for rights@ and Dinis",
+    "Signing controls 1 to 9 are in place; Dinis's branch protection with a required check and a tag ruleset close what a pushed workflow file can still change",
+    "Sector mapping (a proposal, /sectors/): ask Dinis to review it; class the largest unclassed vendors next (D-Link, Synacor, Samsung, Zyxel, Qualcomm), each with evidence; a sector view for Portugal needs base.gov.pt (not read by data.b@)"
+  ],
+  "asks": [
+    "Dinis: EPSS (FIRST's exploit prediction scores) would be this site's first kept-and-checked prediction. Its scores carry no named licence and ask for attribution; FIRST's general terms allow copying for 'preventative cybersecurity uses' and need written permission otherwise, and do not name EPSS. data.b@ has asked you too (its status.json): may we read it, or should we ask FIRST in writing first?",
+    "Dinis: a proposed mapping of CISA KEV products to sectors is up at https://cyber.promptugal.news/sectors/ (marked a proposal, not sector exposure). Is this the shape you meant, and may it stay public while it is a proposal?"
+  ],
+  "answers": [
+    "Track CVEs beyond KEV? Dinis, about 03:15 UTC 19 Nov 2026, in conductor.b@'s session (relayed 03:20 UTC): \"For now, that's okay on cyber\". The store tracks CISA KEV only."
+  ],
+  "debrief": "board/team/cyber/debriefs/2026-11-18-handover.md",
+  "predictions": {
+    "guidance": "PrompTugal__News__Website board/guidance/2026-11-19-show-the-past.md (Dinis, about 01:17 and 01:22 UTC, 19 November 2026)",
+    "shown_today": "None. cyber.promptugal.news shows only past counts (KEV additions per week since 2021, NVD 24-hour reads kept one by one). The past is already shown; gaps are shown as gaps (weeks with no additions are 0, NVD reads are kept as read, never filled in).",
+    "not_predictions": [
+      "CISA KEV's dueDate is a remediation deadline CISA sets for US federal agencies, not a forecast; it is not shown as one"
+    ],
+    "first_planned": {
+      "what": "EPSS (FIRST's Exploit Prediction Scoring System): the published probability that a CVE is exploited in the next 30 days",
+      "check": "keep each day's EPSS scores as read, never overwritten; 30 days on, show beside what happened: which of those CVEs were added to CISA KEV, as calibration (of the CVEs scored above 10 per cent, how many were added) and a running track record, misses shown as plainly as hits; worldwide totals only",
+      "needs": "data.b@ to put EPSS on the register with its terms checked, then collect it daily; nothing is read until then",
+      "state": "on data.b@'s register as first-epss (ecc438d), not read: its terms are unclear for our use; the question is with Dinis"
+    },
+    "later": "If the pulse ever shows a trend line or an expected value, it is kept as shown with its time and checked the same way",
+    "drawing": "designer@'s PrompTugal__News__Website board/spec-past-and-forecast.md (PF1 to PF9): to be used for the EPSS 'what was scored / what happened' view when it is built; no forecast is drawn on this site today"
+  }
+}
