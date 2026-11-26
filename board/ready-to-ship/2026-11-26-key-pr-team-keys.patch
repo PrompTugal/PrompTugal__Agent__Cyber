@@ -1,0 +1,58 @@
+From f900383c834da28c797d7169dd99b0c548ecc221 Mon Sep 17 00:00:00 2001
+From: "cl-6.cyber" <cl-6.cyber@PrompTugal.dinis>
+Date: Thu, 26 Nov 2026 02:38:33 +0000
+Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: key: list cl-6.cyber and
+ supersede cyber.b-promptugal
+
+Agent: cl-6.cyber@PrompTugal.dinis
+Claude-Session: https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk
+---
+ team/keys.json | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
+
+diff --git a/team/keys.json b/team/keys.json
+index 10bca7a..1a2fd03 100644
+--- a/team/keys.json
++++ b/team/keys.json
+@@ -8,7 +8,7 @@
+       "role": "Lead of cyber.promptugal.news (PrompTugal/PrompTugal__News__Cyber). A session key: it ends with its session.",
+       "how": "Made by the agent in its own session on 18 November 2026 with the installed `sgit pki keygen` (sgit-ai v0.27.0), at Dinis's word of 18 November 2026 (PrompTugal__News__Website board/guidance/2026-11-18-keys-issues-rebuilds-observability.md); public bundle from `sgit pki export`. Kept at team/keys.json because this repository's leak scan allows public keys only there; conductor.b@ lists it in PrompTugal__News__Website board/keys.json. Not linked to an operator's key.",
+       "added": "2026-11-18",
+-      "status": "active",
++      "status": "superseded",
+       "bundle": {
+         "v": 1,
+         "encrypt": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAhVmAGQxxhQ77J1w/GZ9m\n8cR9gMvIlf+mDsqlEFU3SDPeVEsYiPmDPw95nNHzLMkANaaN45xGyNiYo2rsMwb/\nXkZMvUM4Ai4MpJ9+RvtBU2hjX+dZ4LrfQfvx9wWhtEDDmilfbPkQuwMN/hgpfUBo\nVJ4ZQnavKiU6VddjBv9eMyqDCbmNI93qYRkhqm1CZvkRLspisHdCpjB0dIVGqgUw\nsnsXWB9jVTcurgnLJP6j2Gs15RnYl+rRDLQxRtMjyeHwHWMdGdggbJKRf68chjwe\n+w3rqO61CBzTNekNYQAWBtDgX4AJUES1EY/JYqwzKwbDhFjzMB/EshoJxuRbNw2+\nTXA+KIBoRp3Tl9+vHcX+td9jgdRu2L3P23tnAnzYmI0klGVNdjilYeOU+2gtp7Wk\nhc4pMEUZppdtv/jRrt5JzDMHrSHReq0mjlv/ECT9KWM1D9jSbXlPN9r+BQG9ghk9\nJedu7z+43rJdjc+b+0gz+xMV1b2fTXClA3Q8SNSSUsuK3LOM7CbrIbVIUoWNTY1h\nMD9hLrkGyqSl9WgtOM80YUyX577JZxAHVqq74gRsNz46mk2I7Uk8DkJxKvxfoiCZ\nqEfEyIAP24qCWhorZRiTLkFTZbOCGNtcTmZ93eLh5IVvUbEarYtge5RVl0JbkhCZ\nGQuqq9V4vNTrteb/uPeLQA8CAwEAAQ==\n-----END PUBLIC KEY-----\n",
+@@ -21,7 +21,28 @@
+         "from": "bundle.sign",
+         "note": "This agent signs its git commits with the bundle.sign key (ECDSA P-256, sha256:c726b219f62e8657) as an SSH signature (namespace git). scripts/check-signatures.mjs derives the OpenSSH form of the key from bundle.sign with ssh-keygen -i -m PKCS8 and verifies each commit with git verify-commit."
+       },
+-      "session": "https://claude.ai/code/session_01Kw9UwDxnKcmYhgso8fqEG5"
++      "session": "https://claude.ai/code/session_01Kw9UwDxnKcmYhgso8fqEG5",
++      "superseded": "2026-11-26T02:38Z",
++      "superseded_by": "cl-6.cyber"
++    },
++    {
++      "id": "cl-6.cyber",
++      "agent": "cl-6.cyber@PrompTugal.dinis",
++      "label": "cl-6.cyber@PrompTugal.dinis (Claude Code session, account 6)",
++      "role": "Lead of cyber.promptugal.news (PrompTugal/PrompTugal__News__Cyber), successor of cyber.b@PrompTugal.dinis. A session key: it ends with its session.",
++      "how": "Made by the agent in its own session on 26 November 2026 (openssl P-256 signing and RSA-4096 encryption; ssh-ed25519 for the section key bootstrap). Published first in PrompTugal/PrompTugal__Agent__Cyber site/keys/cl-6.cyber.json.",
++      "added": "2026-11-26",
++      "status": "active",
++      "bundle": {
++        "v": 1,
++        "encrypt": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA0HN5D/+T5C0ID+pKpeuD\n2a6piUS6eLptr+LxbhhvdSV0xRKClOQecnhVRJnbgxxjIXNnOjVP1ijh0xjQgCp+\nMDEO/WXAcUmW9F6aN06zikFtZevdMTzlJS1DimJ2uDdmCh9JC+Q6f+fAhm5qTAzy\nTYKRGKVs55ShoUAJxTTdLpqtkfsnzcn3GzCd1MxLE8+3nDpOrwoZMNw/Zwm3t6I6\nH5CqbkSUVN4zeDdHbUJljNFjeXbFfyNVsn3Y7I2Yc/sY44LXCbnaI9E0ORErXlta\nuijQzEuO5es5ws1E/jiWuHepnqTryyOvPI/jtJFBJ6W0/nmI9HG1fTWbqsmp1ax6\nPaG+TxzJC+ghbQWC5Lrn7UimFnw60izKVDbOPD/jq1ObmCb3DXstzaAQX1UpjIzJ\n0ldCW24ULL21/gMnoA2+iXrqbzJIIGOJHaz3G35ooHHzcObuRvrW4BRW0ksVj5fH\nPHEunYTDVcYQDJ4YVKfIcHvNXPcB6kBvRxIanHbOnAWtYD7czcbl+xFlT9TMBu8k\nwzt9E34/XksBASr4hxyHxEftqFrwpIBYssdgYj3YxXTXFm9Jhkh6lYT32I9HBhXU\nyoTWP01T23boaFG5gNd8rSSoL5+b/UkF4Dk5gZJin+yTcUVj2GAA0gy2TYDULIb8\nbDFFPMBs07UxG5EHufQ9dSECAwEAAQ==\n-----END PUBLIC KEY-----\n",
++        "sign": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEGnYcIK8dD/ywh9qb8I1jwU1VoThB\nMHDnx59JLhb0lKfS0CQYsF3B8BONZw+89hrvkXOyqNHWjT6S+xOUE9EqWA==\n-----END PUBLIC KEY-----\n",
++        "label": "cl-6.cyber-account-6",
++        "fingerprint": "sha256:b1e4728d992e8792",
++        "signing_fingerprint": "sha256:037ec2926eab8637"
++      },
++      "ssh_public_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG5XphCCADMNBIiJC8dPrAF7Bd7x77WjgJWpJm0HeePk",
++      "session": "https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk"
+     }
+   ]
+ }
+-- 
+2.43.0
+
