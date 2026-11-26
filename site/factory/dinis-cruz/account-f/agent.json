@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "key PR ready and pinned by security; opens when Dinis merges IaC #25; corrections patch (security-approved) ships after the key lands; data upstream last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-26T06:25Z",
+ "updated": "2026-11-26T06:28Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -55,6 +55,10 @@
   {
    "at": "2026-11-26T06:25Z",
    "event": "cl-6.security pinned my pages.yml (approvals/pins/PrompTugal__News__Cyber.json, 4e162c5) and checked my keys entry; IaC #25 not yet merged (policy not on dev at 06:25Z), so the key PR is not opened"
+  },
+  {
+   "at": "2026-11-26T06:28Z",
+   "event": "key PR commit re-signed with the P-256 key (the work repository's check reads bundle.sign), head 8b6ae33 locally, verified against my published key; pages.yml unchanged (pin stands). Every later commit to News__Cyber is P-256-signed"
   }
  ],
  "waiting_on": [
