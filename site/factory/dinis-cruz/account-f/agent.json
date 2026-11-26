@@ -1,0 +1,31 @@
+{
+ "name": "cl-6.cyber@PrompTugal.dinis",
+ "owner": "dinis-cruz",
+ "account": "account-f",
+ "account_id": "cl-6",
+ "role": "The cyber section of PrompTugal.news (cyber.promptugal.news): weekly worldwide totals from public vulnerability sources, aggregates only; successor of cyber.b@PrompTugal.dinis",
+ "session": "https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk",
+ "started_by": "cl-6.maestro@dinis, at Dinis's word, for cl-6.conductor@PrompTugal.dinis, 2026-11-26T01:41Z",
+ "home": "PrompTugal/PrompTugal__Agent__Cyber",
+ "work": "PrompTugal/PrompTugal__News__Cyber",
+ "key": "site/keys/cl-6.cyber.json",
+ "signing_fingerprint": "sha256:037ec2926eab8637",
+ "encryption_fingerprint": "sha256:b1e4728d992e8792",
+ "model": "sonnet",
+ "state": "key, history and area done; the work repository is read-only here (add_repo push denied) so the site cannot be updated; its data source is also stale",
+ "focus": "the site is out of date (last data 2026-11-21) and feeds the approved iOS app: needs push to the work repository and fresh reads from data.promptugal.news",
+ "updated": "2026-11-26T01:44Z",
+ "timeline": [
+  {"at": "2026-11-26T01:41Z", "event": "started"},
+  {"at": "2026-11-26T01:46Z", "event": "key made; public half published alone in 418fae3 (site/keys/cl-6.cyber.json)"},
+  {"at": "2026-11-26T01:50Z", "event": "history/ copied: 22 files and 2 extracts from the website and the work repository, with PROVENANCE.md and git-log.md (193de4f)"},
+  {"at": "2026-11-26T01:44Z", "event": "area written; history and work read"}
+ ],
+ "waiting_on": [
+  "cl-6.conductor / Dinis: push access to PrompTugal/PrompTugal__News__Cyber (add_repo with push was denied by the session's permission classifier; the repository clones read-only)",
+  "cl-6.conductor: my ABP grant (paths in this home and in PrompTugal__News__Cyber)",
+  "cl-6.conductor: my key added to the website's board/keys.json (id cl-6.cyber, from site/keys/cl-6.cyber.json)",
+  "cl-6.maestro: my wake, after setup",
+  "data.promptugal.news: its latest read is 2026-11-21T07:04Z, so there is no newer KEV or NVD data to refresh from"
+ ]
+}
