@@ -1,0 +1,313 @@
+name: Pages
+# From the site repositories made by sites@AgentiCCells.dinis (2026-11-16). In the
+# template itself (.factory-template exists) nothing is deployed: it is built,
+# checked and versioned only. A seeded site deploys on every push to dev.
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+env:
+  # Major and minor are set here by a person. The patch number is set by this workflow only:
+  # the first release is v0.1.0, and each later push to dev adds one.
+  VERSION_BASE: '0.1'
+jobs:
+  # Control 9 (security@'s fifth ruling, 16402a95c, from civic): the signature, trailer and leak checks run in jobs that
+  # have run no pushed code. They check out, take each check from the anchor A (the head commit of the latest successful
+  # push run of this workflow on dev, read from GitHub's API) into RUNNER_TEMP, refuse symlinks there, clear NODE_OPTIONS, set
+  # GIT_NO_REPLACE_OBJECTS=1 and call node by an absolute path. The built site reaches the leak scan only as data.
+  # The workflow file itself still comes from the pushed tree: only Dinis's branch protection closes that.
+  verify:
+    # dev only: a manual run on another branch never checks, deploys or tags (live.b@'s finding, 16:15 UTC)
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    env:
+      GIT_NO_REPLACE_OBJECTS: '1'
+      NODE_OPTIONS: ''
+      # pushed git attributes are never read, from the working tree or the index (events.b@'s finding, 16:25 UTC):
+      # the attribute source is the empty tree (git 2.42 or later, checked below)
+      GIT_ATTR_SOURCE: 4b825dc642cb6eb9a060e54bf8d69288fbee4904
+    outputs:
+      anchor: ${{ steps.trusted.outputs.anchor }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: No release during a hold; no pushed git attributes in this job
+        run: |
+          if [ -e board/HOLD.md ]; then echo "board/HOLD.md exists" >&2; exit 1; fi
+          find . -path ./.git -prune -o -name .gitattributes -type f -print -exec rm -f {} +
+          # fail closed: both fields must be numbers before they are compared (videos.b@'s finding, 16:28 UTC)
+          if [[ "$(git version)" =~ ^git\ version\ ([0-9]+)\.([0-9]+) ]]; then ma=${BASH_REMATCH[1]}; mi=${BASH_REMATCH[2]}; else echo "cannot read the git version: refusing" >&2; exit 1; fi
+          if ! [[ $ma =~ ^[0-9]+$ && $mi =~ ^[0-9]+$ ]] || (( ma < 2 || (ma == 2 && mi < 42) )); then echo "git $ma.$mi is older than 2.42 (GIT_ATTR_SOURCE needs it), or unreadable: refusing" >&2; exit 1; fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Find the anchor (the newest commit a passing run of this workflow checked)
+        # security@'s sixth ruling (0ba439611, relayed by conductor.b@ 14:26 UTC): A is the head_sha of the latest run of
+        # this workflow file, on dev, from a push, that concluded success. Only GitHub Actions creates runs; anyone with
+        # write access could create a "successful deployment", so deployments are no longer read. Tags are not consulted.
+        # Dropped runs are covered because the range is A..AFTER.
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          WORKFLOW_PATH: .github/workflows/pages.yml
+          # set only by PrompTugal__IaC's key-bootstrap job (policy/key-bootstrap.json), to the merge commit of an approved key
+          # pull request, and deleted after the first green run on dev or after 24 hours; empty otherwise
+          BOOTSTRAP_ANCHOR: ${{ vars.SIG_BOOTSTRAP_ANCHOR }}
+        run: |
+          if [ -n "${BOOTSTRAP_ANCHOR:-}" ]; then
+            [[ "$BOOTSTRAP_ANCHOR" =~ ^[0-9a-f]{40}$ ]] || { echo "SIG_BOOTSTRAP_ANCHOR is not 40 hex digits: refusing" >&2; exit 1; }
+            anchor="$BOOTSTRAP_ANCHOR"; echo "anchor set by PrompTugal__IaC: $anchor"
+          else
+          anchor=$(node -e '
+            const h = { authorization: `Bearer ${process.env.GH_TOKEN}`, accept: "application/vnd.github+json", "user-agent": "cyber-promptugal-ci" };
+            const api = `https://api.github.com/repos/${process.env.REPO}`, path = process.env.WORKFLOW_PATH;
+            (async () => {
+              const r = await fetch(`${api}/actions/workflows/pages.yml/runs?branch=dev&event=push&status=success&per_page=50`, { headers: h });
+              if (!r.ok) throw new Error(`workflow runs: HTTP ${r.status}`);
+              // a run counts only if its own security jobs, by name, passed: a pushed workflow that drops them can "succeed"
+              // without them (the finding of live.b@, 16:15 UTC); a workflow that keeps the names but weakens them is closed only
+              // by the branch protection Dinis is to set
+              for (const x of (await r.json()).workflow_runs || []) {
+                if (!(x.path === path && x.head_branch === "dev" && x.event === "push" && x.conclusion === "success" && /^[0-9a-f]{40}$/.test(x.head_sha))) continue;
+                const j = await fetch(`${api}/actions/runs/${x.id}/jobs?per_page=50`, { headers: h }); if (!j.ok) throw new Error(`run jobs: HTTP ${j.status}`);
+                const jobs = (await j.json()).jobs || [];
+                if (["verify", "leakscan"].every(n => jobs.some(k => k.name === n && k.conclusion === "success"))) { console.log(x.head_sha); return; }
+              }
+            })().catch(e => { console.error(String(e.message || e)); process.exit(1); });
+          ')
+          fi
+          echo "ANCHOR=$anchor" >> "$GITHUB_ENV"
+      - id: trusted
+        name: Take every security check from the anchor's tree
+        # Every security check (trailers, signatures, leak scan) and its config comes from A's tree, never the pushed tree
+        # or a tag, and the range checked is A..AFTER; a missing A, an A that is not an ancestor of AFTER, a missing copy
+        # or a symlink on a checker path fails (security@'s controls 7, 8 and 9).
+        env:
+          AFTER: ${{ github.sha }}
+        run: |
+          base=c8fff24023c597a36a76966af5d585b51944c966
+          [ "$(git rev-parse --is-shallow-repository)" = "false" ] || { echo "a shallow checkout: refusing (fetch-depth must be 0)" >&2; exit 1; }
+          if [ -z "${ANCHOR:-}" ] || ! git cat-file -e "$ANCHOR^{commit}" 2>/dev/null; then echo "no anchor: no successful run of this workflow recorded, or not in this clone: refusing; a person decides" >&2; exit 1; fi
+          if ! git merge-base --is-ancestor "$base" "$ANCHOR" || ! git merge-base --is-ancestor "$ANCHOR" "$AFTER"; then
+            echo "the anchor is not an ancestor of this push (force push or new history): refusing; a person decides" >&2; exit 1
+          fi
+          # every config the checks read comes from A: a pushed change to git attributes or the exemptions stops the run
+          # (signals.b@'s finding, relayed 14:30 UTC); a person decides such a change
+          if ! git diff --quiet "$ANCHOR" "$AFTER" -- .gitattributes ':(glob)**/.gitattributes' scripts/commit-exemptions.json; then
+            echo "this push changes .gitattributes or the commit exemptions: refusing; a person decides" >&2; exit 1
+          fi
+          # control 10 (security@ ed70bd996, relayed by conductor.b@ 16:50 UTC): no symlinks. Refused: a mode-120000 entry added
+          # or changed in any commit of A..AFTER (per commit, merges against each parent), one in the pushed tree, one in the
+          # checkout. Exceptions come only from scripts/symlink-exceptions.json in A's tree, each with its path, its target and
+          # a reason; a new one counts from the next anchor, and security@ reviews each. Paths are compared as whole byte
+          # strings read NUL-separated, never line by line (events.b@'s review 44d5402). Commits at or before the first
+          # anchor that ran this check are not walked; the tree and checkout checks still catch a link that survives.
+          [[ $ANCHOR =~ ^[0-9a-f]{40}$ && $AFTER =~ ^[0-9a-f]{40}$ ]] || { echo "the anchor or the pushed commit is not a full commit id: refusing" >&2; exit 1; }
+          [ "$(git rev-parse HEAD)" = "$AFTER" ] || { echo "the checkout is not the pushed commit: refusing" >&2; exit 1; }
+          ex="$RUNNER_TEMP/symlink-exceptions.json"
+          emode=$(git ls-tree "$ANCHOR" scripts/symlink-exceptions.json | cut -d' ' -f1)
+          if [ -z "$emode" ]; then echo '{"exceptions":[]}' > "$ex"
+          elif [ "$emode" = "100644" ]; then git cat-file blob "$ANCHOR:scripts/symlink-exceptions.json" > "$ex"
+          else echo "scripts/symlink-exceptions.json at the anchor is not a plain file: refusing" >&2; exit 1; fi
+          if ! git diff --quiet "$ANCHOR" "$AFTER" -- scripts/symlink-exceptions.json; then echo "this push changes scripts/symlink-exceptions.json: the change counts only from the next anchor, after security@ reviews it"; fi
+          NODE=$(readlink -f "$(command -v node)")
+          "$NODE" -e '
+            const { execFileSync: x } = require("child_process"), fs = require("fs"), { createHash } = require("crypto");
+            const [A, B, F] = process.argv.slice(1);
+            const fail = m => { console.error(m); process.exit(1); };
+            let doc; try { doc = JSON.parse(fs.readFileSync(F, "utf8")); } catch { fail("the symlink exceptions at the anchor are not valid JSON: refusing"); }
+            if (!doc || !Array.isArray(doc.exceptions)) fail("the symlink exceptions at the anchor have no exceptions list: refusing");
+            // paths and targets are compared as raw bytes (latin1 keeps one character per byte), never line by line
+            const bytes = s => Buffer.from(s, "utf8").toString("latin1"), show = s => JSON.stringify(s);
+            const ok = new Map();
+            for (const e of doc.exceptions) {
+              if (!e || typeof e.path !== "string" || !e.path || typeof e.target !== "string" || !e.target || typeof e.reason !== "string" || !e.reason.trim()) fail("a symlink exception without a path, a target and a reason: refusing");
+              if (ok.has(bytes(e.path))) fail(`a symlink exception listed twice: ${show(e.path)}: refusing`);
+              const t = Buffer.from(e.target, "utf8");
+              ok.set(bytes(e.path), { target: t.toString("latin1"), blob: createHash("sha1").update(Buffer.concat([Buffer.from(`blob ${t.length}\0`), t])).digest("hex") });
+            }
+            const g = a => x("git", a, { maxBuffer: 1 << 30 }).toString("latin1");
+            const bad = [];
+            // an exception pins both the path and where the link points: a repointed link is refused
+            const hit = (where, path, blob, target) => { const e = ok.get(path); if (!e || (blob !== undefined && blob !== e.blob) || (target !== undefined && target !== e.target)) bad.push(`${where}: ${show(path)}`); };
+            for (const c of g(["rev-list", `${A}..${B}`]).split("\n").filter(Boolean)) {
+              const t = g(["diff-tree", "-r", "-z", "--raw", "--no-renames", "--no-commit-id", "-m", "--root", c]).split("\0");
+              for (let i = 0; i < t.length;) {
+                if (t[i] === "" && i === t.length - 1) break;
+                const m = /^:([0-7]{6}) ([0-7]{6}) [0-9a-f]{40} ([0-9a-f]{40}) ([A-Z])[0-9]*$/.exec(t[i]);
+                if (!m) fail(`cannot read the changes of ${c}: refusing`);
+                const n = /[RC]/.test(m[4]) ? 2 : 1, paths = t.slice(i + 1, i + 1 + n); i += 1 + n;
+                if (paths.length !== n || paths.some(q => q === "")) fail(`cannot read the changes of ${c}: refusing`);
+                if (m[2] === "120000") hit(`a symlink added or changed in ${c.slice(0, 12)}`, paths[n - 1], m[3]);
+              }
+            }
+            for (const r of g(["ls-tree", "-r", "-z", "--full-tree", B]).split("\0")) {
+              if (!r) continue; const m = /^([0-7]{6}) [a-z]+ ([0-9a-f]{40})\t([\s\S]+)$/.exec(r); if (!m) fail("cannot read the pushed tree: refusing");
+              if (m[1] === "120000") hit("a symlink in the pushed tree", m[3], m[2]);
+            }
+            const walk = rel => {
+              for (const d of fs.readdirSync(rel ? Buffer.from(rel, "latin1") : ".", { withFileTypes: true, encoding: "buffer" })) {
+                const name = d.name.toString("latin1"), p = rel ? `${rel}/${name}` : name;
+                if (!rel && name === ".git") continue;
+                const at = Buffer.from(p, "latin1"), st = fs.lstatSync(at);
+                if (st.isSymbolicLink()) hit("a symlink in the checked-out tree", p, undefined, fs.readlinkSync(at, { encoding: "buffer" }).toString("latin1")); else if (st.isDirectory()) walk(p);
+              }
+            };
+            walk("");
+            if (bad.length) fail(`symlinks are refused unless scripts/symlink-exceptions.json at the anchor lists each, with its target and a reason (control 10):\n${bad.join("\n")}`);
+            console.log(`no symlinks outside the exceptions at the anchor (${ok.size} listed)`);
+          ' "$ANCHOR" "$AFTER" "$ex"
+          dir="$RUNNER_TEMP/trusted"; mkdir -p "$dir"
+          for f in check-commits.mjs check-signatures.mjs leak-scan.mjs; do
+            mode=$(git ls-tree "$ANCHOR" "scripts/$f" | cut -d' ' -f1)
+            [ "$mode" = "100644" ] || [ "$mode" = "100755" ] || { echo "the trusted copy of $f is missing at the anchor $ANCHOR, or not a plain file: refusing" >&2; exit 1; }
+            git show "$ANCHOR:scripts/$f" > "$dir/$f" || { echo "the trusted copy of $f is missing at the anchor $ANCHOR: refusing" >&2; exit 1; }
+          done
+          echo "TRUSTED_FROM=$ANCHOR" >> "$GITHUB_ENV"; echo "TRUSTED_DIR=$dir" >> "$GITHUB_ENV"
+          echo "anchor=$ANCHOR" >> "$GITHUB_OUTPUT"
+      - name: Every commit since the anchor carries an Agent trailer (trusted copy)
+        env:
+          AFTER: ${{ github.sha }}
+        run: |
+          NODE=$(readlink -f "$(command -v node)")
+          "$NODE" "$TRUSTED_DIR/check-commits.mjs" "$TRUSTED_FROM" "$AFTER"
+      - name: Every commit since the anchor is signed by its agent's published key and names its session (trusted copy)
+        env:
+          AFTER: ${{ github.sha }}
+        run: |
+          NODE=$(readlink -f "$(command -v node)")
+          "$NODE" "$TRUSTED_DIR/check-signatures.mjs" "$TRUSTED_FROM" "$AFTER"
+  build:
+    needs: verify
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      deploy: ${{ steps.mode.outputs.deploy }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: version
+        name: Work out the next version from the tags
+        run: |
+          last=$(git tag --list "v${VERSION_BASE}.*" | sed "s/^v${VERSION_BASE}\.//" | grep -E '^[0-9]+$' | sort -n | tail -1 || true)
+          if [ -z "$last" ]; then next=0; else next=$((last + 1)); fi
+          echo "version=v${VERSION_BASE}.${next}" >> "$GITHUB_OUTPUT"
+          echo "Version: v${VERSION_BASE}.${next}"
+      - id: mode
+        name: Deploy unless this is the template itself
+        run: if [ -e .factory-template ]; then echo deploy=false >> "$GITHUB_OUTPUT"; else echo deploy=true >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build.mjs
+        env:
+          SITE_VERSION: ${{ steps.version.outputs.version }}
+      - run: node scripts/validate.mjs
+      - name: Leak scan tests (each key rule)
+        run: node scripts/test-leak-scan.mjs
+      - name: Pulse reader tests (daily NVD totals)
+        run: node scripts/test-pulse-daily.mjs
+      - name: Signature check tests (pinned base, orphans, checker from the anchor)
+        run: node scripts/test-check-signatures.mjs
+      - name: Shared map tests (the registry's pins and review decide)
+        run: node scripts/test-ptmap.mjs
+      - name: Sector mapping tests (a fault in the proposal stops the build)
+        run: node scripts/test-sectors.mjs
+      - name: The built site, as data for the leak scan
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: _site
+          retention-days: 1
+  leakscan:
+    needs: [verify, build]
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    env:
+      GIT_NO_REPLACE_OBJECTS: '1'
+      NODE_OPTIONS: ''
+      # pushed git attributes are never read, from the working tree or the index (events.b@'s finding, 16:25 UTC):
+      # the attribute source is the empty tree (git 2.42 or later, checked below)
+      GIT_ATTR_SOURCE: 4b825dc642cb6eb9a060e54bf8d69288fbee4904
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: No pushed _site path and no pushed git attributes in this job
+        run: |
+          if [ -e _site ] || [ -L _site ] || [ -n "$(git ls-tree HEAD _site)" ]; then echo "the pushed tree holds a _site path: refusing" >&2; exit 1; fi
+          find . -path ./.git -prune -o -name .gitattributes -type f -print -exec rm -f {} +
+          # fail closed: both fields must be numbers before they are compared (videos.b@'s finding, 16:28 UTC)
+          if [[ "$(git version)" =~ ^git\ version\ ([0-9]+)\.([0-9]+) ]]; then ma=${BASH_REMATCH[1]}; mi=${BASH_REMATCH[2]}; else echo "cannot read the git version: refusing" >&2; exit 1; fi
+          if ! [[ $ma =~ ^[0-9]+$ && $mi =~ ^[0-9]+$ ]] || (( ma < 2 || (ma == 2 && mi < 42) )); then echo "git $ma.$mi is older than 2.42 (GIT_ATTR_SOURCE needs it), or unreadable: refusing" >&2; exit 1; fi
+      - name: The built site, as data, into the runner's temp folder (never into the checkout)
+        uses: actions/download-artifact@v4
+        with:
+          name: site
+          path: ${{ runner.temp }}/site-in
+      - name: Leak scan (tracked files and the built site; the anchor's copy, no pushed code run)
+        env:
+          ANCHOR: ${{ needs.verify.outputs.anchor }}
+        run: |
+          [ -n "$ANCHOR" ] || { echo "no anchor from the verify job: refusing" >&2; exit 1; }
+          in="$RUNNER_TEMP/site-in"
+          if [ -n "$(find "$in" -type l -print -quit)" ]; then echo "the built site holds a symlink: refusing" >&2; exit 1; fi
+          if [ -n "$(find "$in" ! -type f ! -type d -print -quit)" ]; then echo "the built site holds something other than files and folders: refusing" >&2; exit 1; fi
+          if [ -e _site ] || [ -L _site ]; then echo "a _site path appeared in the checkout: refusing" >&2; exit 1; fi
+          mv "$in" _site
+          mode=$(git ls-tree "$ANCHOR" scripts/leak-scan.mjs | cut -d' ' -f1)
+          [ "$mode" = "100644" ] || [ "$mode" = "100755" ] || { echo "the trusted leak scan is missing at the anchor, or not a plain file: refusing" >&2; exit 1; }
+          # the trusted copy goes in a fresh folder made only after the site has been checked (events.b@'s finding)
+          t=$(mktemp -d "$RUNNER_TEMP/trusted-XXXXXX")
+          git show "$ANCHOR:scripts/leak-scan.mjs" > "$t/leak-scan.mjs"
+          NODE=$(readlink -f "$(command -v node)")
+          "$NODE" "$t/leak-scan.mjs"
+          if [ -n "$(find _site -type l -print -quit)" ]; then echo "the built site holds a symlink after the scan: refusing" >&2; exit 1; fi
+      # the deployed bytes are the scanned bytes (library.b@'s LIB-2026-067): Pages gets this job's scanned copy
+      - if: needs.build.outputs.deploy == 'true'
+        uses: actions/configure-pages@v5
+      - if: needs.build.outputs.deploy == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: [verify, build, leakscan]
+    if: github.ref == 'refs/heads/dev' && needs.build.outputs.deploy == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+  tag:
+    needs: [verify, build, leakscan, deploy]
+    if: ${{ always() && github.ref == 'refs/heads/dev' && needs.verify.result == 'success' && needs.build.result == 'success' && needs.leakscan.result == 'success' && (needs.deploy.result == 'success' || needs.deploy.result == 'skipped') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag the released commit
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          git tag "$VERSION" "$GITHUB_SHA"
+          git push origin "$VERSION"

@@ -1,4 +1,4 @@
-From f900383c834da28c797d7169dd99b0c548ecc221 Mon Sep 17 00:00:00 2001
+From df5f20b766e4ee390bc37cbba9cf7292e7507d45 Mon Sep 17 00:00:00 2001
 From: "cl-6.cyber" <cl-6.cyber@PrompTugal.dinis>
 Date: Thu, 26 Nov 2026 02:38:33 +0000
 Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: key: list cl-6.cyber and
@@ -7,9 +7,37 @@ Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: key: list cl-6.cyber and
 Agent: cl-6.cyber@PrompTugal.dinis
 Claude-Session: https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk
 ---
- team/keys.json | 25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
+ .github/workflows/pages.yml |  8 ++++++++
+ team/keys.json              | 25 +++++++++++++++++++++++--
+ 2 files changed, 31 insertions(+), 2 deletions(-)
 
+diff --git a/.github/workflows/pages.yml b/.github/workflows/pages.yml
+index e88a7c2..4dd659f 100644
+--- a/.github/workflows/pages.yml
++++ b/.github/workflows/pages.yml
+@@ -58,7 +58,14 @@ jobs:
+           GH_TOKEN: ${{ github.token }}
+           REPO: ${{ github.repository }}
+           WORKFLOW_PATH: .github/workflows/pages.yml
++          # set only by PrompTugal__IaC's key-bootstrap job (policy/key-bootstrap.json), to the merge commit of an approved key
++          # pull request, and deleted after the first green run on dev or after 24 hours; empty otherwise
++          BOOTSTRAP_ANCHOR: ${{ vars.SIG_BOOTSTRAP_ANCHOR }}
+         run: |
++          if [ -n "${BOOTSTRAP_ANCHOR:-}" ]; then
++            [[ "$BOOTSTRAP_ANCHOR" =~ ^[0-9a-f]{40}$ ]] || { echo "SIG_BOOTSTRAP_ANCHOR is not 40 hex digits: refusing" >&2; exit 1; }
++            anchor="$BOOTSTRAP_ANCHOR"; echo "anchor set by PrompTugal__IaC: $anchor"
++          else
+           anchor=$(node -e '
+             const h = { authorization: `Bearer ${process.env.GH_TOKEN}`, accept: "application/vnd.github+json", "user-agent": "cyber-promptugal-ci" };
+             const api = `https://api.github.com/repos/${process.env.REPO}`, path = process.env.WORKFLOW_PATH;
+@@ -76,6 +83,7 @@ jobs:
+               }
+             })().catch(e => { console.error(String(e.message || e)); process.exit(1); });
+           ')
++          fi
+           echo "ANCHOR=$anchor" >> "$GITHUB_ENV"
+       - id: trusted
+         name: Take every security check from the anchor's tree
 diff --git a/team/keys.json b/team/keys.json
 index 10bca7a..1a2fd03 100644
 --- a/team/keys.json

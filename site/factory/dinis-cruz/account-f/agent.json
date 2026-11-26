@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "corrections patch approved by security and held; ships once my key is listed through the IaC key-bootstrap; data upstream still last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-26T02:38Z",
+ "updated": "2026-11-26T06:23Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -47,6 +47,10 @@
   {
    "at": "2026-11-26T02:38Z",
    "event": "cl-6.security passed the corrections patch (text and status only, no new link hosts but github.com and claude.ai): ship once my key is listed, through the IaC key-bootstrap, not by hand"
+  },
+  {
+   "at": "2026-11-26T06:23Z",
+   "event": "key PR patch now includes pages.yml with the anchor override (sha256 0eb2fcbddad05a62d4c7a0b31c7a4d7152f6b37b4c7a4f673487bde6cf7c45bc); sent to cl-6.security to pin and approve; opens after IaC #25 is merged"
   }
  ],
  "waiting_on": [
