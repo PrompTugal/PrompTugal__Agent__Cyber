@@ -1,4 +1,4 @@
-From 4b65bb62c5163966a7fc4928d6e63de3feb891eb Mon Sep 17 00:00:00 2001
+From 7ac786b2d816e233797f9889c9717ea9ec58bf1f Mon Sep 17 00:00:00 2001
 From: "cl-6.cyber" <cl-6.cyber@PrompTugal.dinis>
 Date: Fri, 27 Nov 2026 02:44:13 +0000
 Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: release.sh for the dev-gate:
@@ -7,33 +7,47 @@ Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: release.sh for the dev-gate:
 Agent: cl-6.cyber@PrompTugal.dinis
 Claude-Session: https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk
 ---
- scripts/release.sh | 48 +++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 45 insertions(+), 3 deletions(-)
+ scripts/release.sh | 65 +++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 62 insertions(+), 3 deletions(-)
 
 diff --git a/scripts/release.sh b/scripts/release.sh
-index ca426dc..c303d2c 100755
+index ca426dc..c2e16f9 100755
 --- a/scripts/release.sh
 +++ b/scripts/release.sh
-@@ -10,6 +10,43 @@ git fetch -q origin dev
+@@ -10,6 +10,57 @@ git fetch -q origin dev
  # The signature check runs as it stood at the last release (origin/dev), never from the tree being pushed, so a push
  # cannot change its own checker (videos.b@'s finding via conductor.b@, 19 Nov 2026, 14:01 UTC).
  [ "$(git rev-parse --is-shallow-repository)" = "false" ] || { echo "a shallow clone: fetch the whole history first" >&2; exit 1; }
 +# --- the dev-gate release step -------------------------------------------------------------------------------------
-+# RELEASE_AGENT: the work/<agent> branch; GATE_POLL_SECONDS and GATE_POLL_MAX are for tests (1 to 2 minutes, about 20 minutes).
-+RELEASE_AGENT="${RELEASE_AGENT:-cl-6.cyber}"; GATE_POLL_SECONDS="${GATE_POLL_SECONDS:-90}"; GATE_POLL_MAX="${GATE_POLL_MAX:-1200}"
++# work/cl-6.cyber is fixed (cl-6.security, 27 Nov 2026); GATE_POLL_SECONDS and GATE_POLL_MAX are for tests (1 to 2 minutes, about 20 minutes).
++readonly RELEASE_AGENT=cl-6.cyber; GATE_POLL_SECONDS="${GATE_POLL_SECONDS:-90}"; GATE_POLL_MAX="${GATE_POLL_MAX:-1200}"
 +# Returns 0: dev is at our SHA. 2: dev moved to something else (rebase and try again). 1: refused or timed out (stop).
 +WORK_PUSHED=0
 +# dev moved after we pushed: merge origin/dev into our branch with a signed merge commit and push again as a fast-forward
 +# (PrompTugal__IaC #35: no rebase and no force once work/<agent> holds our commit; to drop a refused commit, revert it).
-+merge_dev() {
++merge_ref() {   # merge_ref <ref> : a signed merge commit with our Agent: and Claude-Session: trailers, never a rebase
 +  local agent session
 +  agent=$(git log -1 --format='%(trailers:key=Agent,valueonly,separator=)' HEAD | tr -d '\n')
 +  session=$(git log -1 --format='%(trailers:key=Claude-Session,valueonly,separator=)' HEAD | tr -d '\n')
 +  [ -n "$agent" ] && [ -n "$session" ] || { echo "HEAD has no Agent: or Claude-Session: trailer: refusing to merge" >&2; return 1; }
-+  git merge -q --no-ff -S -m "$agent: merge dev into work/$RELEASE_AGENT
++  git merge -q --no-ff -S -m "$agent: merge $1 into work/$RELEASE_AGENT
 +
 +Agent: $agent
-+Claude-Session: $session" origin/dev || { git merge --abort 2>/dev/null; return 1; }
++Claude-Session: $session" "$1" || { git merge --abort 2>/dev/null; return 1; }
++}
++merge_dev() { merge_ref origin/dev; }
++# The remote work branch may hold a commit that dev does not (a refused release, or a push that dev never took). Our next
++# commit must descend from it or the push is not a fast-forward. Merge it in unless the gate refused it: then stop,
++# and a person reverts it with a signed revert (never a rewrite).
++sync_work() {
++  local tip
++  git fetch -q origin "refs/heads/work/$RELEASE_AGENT:refs/remotes/origin/work/$RELEASE_AGENT" 2>/dev/null || return 0   # no such branch yet
++  tip=$(git rev-parse "origin/work/$RELEASE_AGENT")
++  git merge-base --is-ancestor "$tip" HEAD && return 0
++  if git ls-remote --tags origin "refs/tags/gate/$RELEASE_AGENT/${tip:0:12}-fail" | awk '{print $2}' | grep -qx "refs/tags/gate/$RELEASE_AGENT/${tip:0:12}-fail"; then
++    echo "work/$RELEASE_AGENT ends at ${tip:0:12}, which the gate refused: revert it with a signed revert, then release again (never rewrite)" >&2; return 1
++  fi
++  merge_ref "origin/work/$RELEASE_AGENT"
 +}
 +release_via_work() {
 +  local sha sha12 waited=0 devsha base
@@ -47,7 +61,7 @@ index ca426dc..c303d2c 100755
 +  while [ "$waited" -le "$GATE_POLL_MAX" ]; do
 +    devsha=$(git ls-remote origin refs/heads/dev | cut -f1)
 +    if [ "$devsha" = "$sha" ]; then echo "released $sha12 to dev"; return 0; fi
-+    if git ls-remote --tags origin "refs/tags/gate/$RELEASE_AGENT/*" | grep -q "gate/$RELEASE_AGENT/$sha12-fail"; then
++    if git ls-remote --tags origin "refs/tags/gate/$RELEASE_AGENT/$sha12-fail" | awk '{print $2}' | grep -qx "refs/tags/gate/$RELEASE_AGENT/$sha12-fail"; then
 +      echo "the gate refused $sha12 (tag gate/$RELEASE_AGENT/$sha12-fail): stopping; revert it, never rewrite" >&2; return 1
 +    fi
 +    if [ -n "$devsha" ] && [ "$devsha" != "$base" ]; then echo "dev moved to ${devsha:0:12}: merging it in and running every gate again"; return 2; fi
@@ -58,17 +72,20 @@ index ca426dc..c303d2c 100755
  SIGTMP=$(mktemp -d); trap 'rm -rf "$SIGTMP"' EXIT
  # Every security check (signatures, trailers, leak scan) runs as it stood at the last release, never from the pushed tree
  # (security@'s control 7 widened, 19 Nov 2026). A missing trusted copy stops the release: git show fails under set -e.
-@@ -27,7 +64,8 @@ trusted check-commits.mjs origin/dev HEAD
+@@ -27,7 +78,11 @@ trusted check-commits.mjs origin/dev HEAD
  sigcheck origin/dev HEAD
  for i in 1 2 3 4 5; do
    git fetch -q origin dev
 -  git rebase -q origin/dev
 +  if [ "$WORK_PUSHED" = 1 ]; then merge_dev || { echo "could not merge origin/dev into the work branch: stopping; a person decides" >&2; exit 1; }
-+  else git rebase -q origin/dev; fi   # nothing is pushed yet, so a local rebase rewrites nothing shared
++  else
++    git rebase -q origin/dev   # nothing of this run is pushed yet, so a local rebase rewrites nothing shared
++    sync_work || { echo "stopping: work/$RELEASE_AGENT needs a person (see above)" >&2; exit 1; }
++  fi
    # One gate per line: under set -e a failure inside an && chain does not stop the script (specialist.code@ finding 1).
    node scripts/build.mjs >/dev/null
    node scripts/validate.mjs >/dev/null
-@@ -39,7 +77,11 @@ for i in 1 2 3 4 5; do
+@@ -39,7 +94,11 @@ for i in 1 2 3 4 5; do
    trusted leak-scan.mjs >/dev/null
    trusted check-commits.mjs origin/dev HEAD >/dev/null
    sigcheck origin/dev HEAD >/dev/null

@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "IaC #25 merged; key PR ready, locally checked against IaC's own checkKeys, pages.yml pinned by security; opening it waits on my grant (P6, P9); data upstream still last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-27T02:47Z",
+ "updated": "2026-11-27T02:48Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -87,6 +87,10 @@
   {
    "at": "2026-11-27T02:47Z",
    "event": "release.sh patch updated to IaC #35 final (signed merge when dev moves, no rebase or force once pushed); tested; sent again to cl-6.security. Not applied until P19 is in force"
+  },
+  {
+   "at": "2026-11-27T02:48Z",
+   "event": "release.sh patch revised per cl-6.security (work/cl-6.cyber hard-coded, exact fail ref, sync_work merge of a leftover work tip, stop on a refused tip); tested; final version for security's review"
   }
  ],
  "waiting_on": [
