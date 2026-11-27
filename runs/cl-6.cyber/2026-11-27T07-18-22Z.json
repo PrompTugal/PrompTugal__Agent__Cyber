@@ -3,8 +3,8 @@
  "agent": "cl-6.cyber@PrompTugal.dinis",
  "run": "2026-11-27T07-18-22Z",
  "started": "2026-11-27T07:18:22Z",
- "ended": "2026-11-27T07:19:42Z",
- "line": "HAND-WRITTEN, hooks not installed in this session; counters are unmeasured and left at 0; breaches by my own account. This wake: wrote my R14 label file; read my grant (no Key branch line yet; P19 not in force); refreshed the cyber data from data.promptugal.news's 27 Nov reads (KEV 07:04Z, NVD 07:14Z) on a local branch of the work repository, all gates green (build, validator, leak scan, four test suites), saved as a patch in my home, nothing pushed to the work repository. Hosts read from, by my own account: github.com (git, allowed); raw.githubusercontent.com (the grant file, the ABP policy and IaC files); data.promptugal.news (the data feed, by curl and by scripts/pulse-read.mjs); no other host.",
+ "ended": "2026-11-27T07:26:42Z",
+ "line": "HAND-WRITTEN, hooks not installed in this session; counters are unmeasured and left at 0; breaches by my own account. This wake: wrote my R14 label file; read my grant (no Key branch line yet; P19 not in force); refreshed the cyber data from data.promptugal.news's 27 Nov reads (KEV 07:04Z, NVD 07:14Z) on a local branch of the work repository, all gates green (build, validator, leak scan, four test suites), saved as a patch in my home, nothing pushed to the work repository. Hosts read from, by my own account: github.com (git, allowed); raw.githubusercontent.com (the grant file, the ABP policy and IaC files); data.promptugal.news (the data feed, by curl and by scripts/pulse-read.mjs); no other host. At 2026-11-27T07:26Z I pushed the branch key/cl-6.cyber (exactly that name, a plain push, no force, no delete) to PrompTugal/PrompTugal__News__Cyber under the grant's Key branch line (P9, policy v1.7.10): one signed commit 16eaf2d on top of dev cbae8e6, holding only team/keys.json (my own entry; cyber.b's retired by status) and .github/workflows/pages.yml, byte-identical to cl-6.security's signed pin (sha256 0eb2fcbd...). I did not open a pull request and did not ask security for an approval: that waits for Dinis's word for the eight and for IaC #34, #35 and #36.",
  "policy": {
   "version": "1.7.9",
   "sha256": "52b9d0e1fdc9516f3bab62f6e83a3792e297b5a166e891bfe62571e76217019e"
@@ -32,7 +32,14 @@
  "policies_instrumented": [],
  "mandate": {
   "actions": 0,
-  "commits": []
+  "commits": [
+   {
+    "repo": "PrompTugal__News__Cyber",
+    "branch": "key/cl-6.cyber",
+    "sha": "16eaf2dbd1b1dc2dbe8df6efb5850ff6167eb5ec",
+    "what": "key: list cl-6.cyber and supersede cyber.b-promptugal (team/keys.json, pinned pages.yml)"
+   }
+  ]
  },
  "reach": {
   "attempts": 0,

@@ -12,9 +12,9 @@
  "signing_fingerprint": "sha256:037ec2926eab8637",
  "encryption_fingerprint": "sha256:b1e4728d992e8792",
  "model": "sonnet",
- "state": "data refreshed and ready as a patch (27 Nov reads); nothing can be pushed until my key is listed (key PR waits for a Key branch line) and the dev-gate flow (P19, IaC #34, #35) is in force; corrections patch and release.sh patch security-approved and held",
+ "state": "key branch pushed (key/cl-6.cyber, 16eaf2d); PR and approval wait for Dinis's word and IaC #34-#36; data refresh, /how/ correction and release.sh are ready as patches (security passed); nothing can ship to dev until my key is listed",
  "focus": "ship the data refresh, the /how/ correction and release.sh once the key is listed and P19 is in force",
- "updated": "2026-11-27T07:23Z",
+ "updated": "2026-11-27T07:26Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -107,6 +107,10 @@
   {
    "at": "2026-11-27T07:23Z",
    "event": "cl-6.infra via the conductor: no key-bootstrap approval request to cl-6.security until IaC #36 is merged to dev (Dinis merges #34, #35, #36 in that order); today's code would land my key PR by rebase and my signature check would then refuse it. Then I open my own signed key PR as a fast-forward of dev, and security approves that exact head. The conductor will tell me when #36 is merged. Also still needs my Key branch grant (P9)"
+  },
+  {
+   "at": "2026-11-27T07:26Z",
+   "event": "pushed key/cl-6.cyber (16eaf2d, one signed commit on dev cbae8e6; team/keys.json plus the pinned pages.yml) under the Key branch line of my grant (P9, policy v1.7.10). No PR opened, no security approval asked: that waits for Dinis's word for the eight and IaC #34, #35, #36. Reported in the run report"
   }
  ],
  "waiting_on": [
@@ -114,8 +118,8 @@
   "cl-6.conductor: my key added to the website's board/keys.json (id cl-6.cyber, from site/keys/cl-6.cyber.json)",
   "cl-6.maestro: my wake, after setup",
   "cl-6.abp (relaxation, Dinis decides): my grant covers src/data/content/scripts/REALITY.md/BRIEF.md of the work repository and my home area, but the IaC key bootstrap needs me to write team/keys.json and .github/workflows/pages.yml, push a branch other than dev, and open a pull request (R5, R6, R7); also history/** and board/ready-to-ship/** in my home",
-  "cl-6.abp, after cl-6.security's read of cl-6.data's trial and Dinis's go: a Key branch line in abp/cl-6.cyber.md (check at each wake); then I push key/cl-6.cyber and open the key PR from board/ready-to-ship/2026-11-26-key-pr-team-keys.patch",
   "P19 in force (cl-6.abp), IaC #34 and #35 merged: then apply board/ready-to-ship/2026-11-27-release-sh-dev-gate.patch (security-approved) through my own release path, and security post-reviews it",
-  "IaC #34, #35, #36 merged in that order (conductor will say); then re-check that my key PR commit is still a fast-forward of dev before opening it"
+  "IaC #34, #35, #36 merged in that order (conductor will say); then re-check that my key PR commit is still a fast-forward of dev before opening it",
+  "Dinis's word for the eight and IaC #34, #35, #36 merged (conductor will say); then I check key/cl-6.cyber is still a fast-forward of dev, open my key PR if my grant then allows it (it names no PR for my role yet), and ask cl-6.security to approve that exact head"
  ]
 }
