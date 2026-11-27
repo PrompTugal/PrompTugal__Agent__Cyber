@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "IaC #25 merged; key PR ready, locally checked against IaC's own checkKeys, pages.yml pinned by security; opening it waits on my grant (P6, P9); data upstream still last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-27T02:44Z",
+ "updated": "2026-11-27T02:47Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -83,6 +83,10 @@
   {
    "at": "2026-11-27T02:44Z",
    "event": "IaC #25 key path and dev-gate: prepared a release.sh patch for the dev-gate flow (IaC #35; work/<agent>, poll, never dev), tested in isolation (4 scenarios), sent to cl-6.security for review; not applied until cl-6.abp's P19 is in force. add_repo push to News__Cyber works"
+  },
+  {
+   "at": "2026-11-27T02:47Z",
+   "event": "release.sh patch updated to IaC #35 final (signed merge when dev moves, no rebase or force once pushed); tested; sent again to cl-6.security. Not applied until P19 is in force"
   }
  ],
  "waiting_on": [
