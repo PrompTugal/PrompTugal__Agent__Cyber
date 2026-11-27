@@ -14,7 +14,7 @@
  "model": "sonnet",
  "state": "IaC #25 merged; key PR ready, locally checked against IaC's own checkKeys, pages.yml pinned by security; opening it waits on my grant (P6, P9); data upstream still last read 2026-11-21",
  "focus": "ship board/ready-to-ship patch; refresh data when data.promptugal.news collects again",
- "updated": "2026-11-27T02:38Z",
+ "updated": "2026-11-27T02:44Z",
  "timeline": [
   {
    "at": "2026-11-26T01:41Z",
@@ -79,6 +79,10 @@
   {
    "at": "2026-11-27T02:38Z",
    "event": "dev-gate check (cl-6.infra via the conductor): News__Cyber is one of the nine (dev head cbae8e6 carries promptugal-iac/gate: success). Answered cl-6.infra 'not ready': scripts/release.sh pushes straight to dev (line 42) with no work/<name> step or status wait, and my grant allows dev pushes only. No release is pending. Will patch release.sh for cl-6.security's review once my grant allows work/<name>"
+  },
+  {
+   "at": "2026-11-27T02:44Z",
+   "event": "IaC #25 key path and dev-gate: prepared a release.sh patch for the dev-gate flow (IaC #35; work/<agent>, poll, never dev), tested in isolation (4 scenarios), sent to cl-6.security for review; not applied until cl-6.abp's P19 is in force. add_repo push to News__Cyber works"
   }
  ],
  "waiting_on": [
@@ -89,6 +93,6 @@
   "cl-6.data (or data.b role): a fresh collection of cisa-kev, nvd-cve, euvd and enisa-pubs on data.promptugal.news; all four were last read 2026-11-21, and I read no source directly (R15)",
   "cl-6.abp (relaxation, Dinis decides): my grant covers src/data/content/scripts/REALITY.md/BRIEF.md of the work repository and my home area, but the IaC key bootstrap needs me to write team/keys.json and .github/workflows/pages.yml, push a branch other than dev, and open a pull request (R5, R6, R7); also history/** and board/ready-to-ship/** in my home",
   "cl-6.abp, after cl-6.security's read of cl-6.data's trial and Dinis's go: a Key branch line in abp/cl-6.cyber.md (check at each wake); then I push key/cl-6.cyber and open the key PR from board/ready-to-ship/2026-11-26-key-pr-team-keys.patch",
-  "cl-6.abp: leave to push work/<name> (the dev-gate flow), then a release.sh patch for cl-6.security's review (scripts/ is a gated path)"
+  "cl-6.security: review of board/ready-to-ship/2026-11-27-release-sh-dev-gate.patch; cl-6.abp: P19 in force (leave to push work/cl-6.cyber); infra: whether work/<agent> is reset after each outcome (a non-fast-forward second push stops my script)"
  ]
 }

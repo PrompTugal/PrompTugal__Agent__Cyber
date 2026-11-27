@@ -1,0 +1,63 @@
+From b4dd30a62faa3c9fce9e3bf29ea6fe974d8ede01 Mon Sep 17 00:00:00 2001
+From: "cl-6.cyber" <cl-6.cyber@PrompTugal.dinis>
+Date: Fri, 27 Nov 2026 02:44:13 +0000
+Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: release.sh for the dev-gate:
+ push work/<agent>, wait for the gate, never push dev
+
+Agent: cl-6.cyber@PrompTugal.dinis
+Claude-Session: https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk
+---
+ scripts/release.sh | 31 +++++++++++++++++++++++++++++--
+ 1 file changed, 29 insertions(+), 2 deletions(-)
+
+diff --git a/scripts/release.sh b/scripts/release.sh
+index ca426dc..46de75f 100755
+--- a/scripts/release.sh
++++ b/scripts/release.sh
+@@ -10,6 +10,29 @@ git fetch -q origin dev
+ # The signature check runs as it stood at the last release (origin/dev), never from the tree being pushed, so a push
+ # cannot change its own checker (videos.b@'s finding via conductor.b@, 19 Nov 2026, 14:01 UTC).
+ [ "$(git rev-parse --is-shallow-repository)" = "false" ] || { echo "a shallow clone: fetch the whole history first" >&2; exit 1; }
++# --- the dev-gate release step -------------------------------------------------------------------------------------
++# RELEASE_AGENT: the work/<agent> branch; GATE_POLL_SECONDS and GATE_POLL_MAX are for tests (1 to 2 minutes, about 20 minutes).
++RELEASE_AGENT="${RELEASE_AGENT:-cl-6.cyber}"; GATE_POLL_SECONDS="${GATE_POLL_SECONDS:-90}"; GATE_POLL_MAX="${GATE_POLL_MAX:-1200}"
++# Returns 0: dev is at our SHA. 2: dev moved to something else (rebase and try again). 1: refused or timed out (stop).
++release_via_work() {
++  local sha sha12 waited=0 devsha base
++  sha=$(git rev-parse HEAD); sha12=${sha:0:12}; base=$(git rev-parse origin/dev)
++  # a plain push, never a force: if work/<agent> cannot take it as a fast-forward, stop and say so
++  if ! git -c push.negotiate=true push -q origin "HEAD:refs/heads/work/$RELEASE_AGENT"; then
++    echo "could not push work/$RELEASE_AGENT (not a fast-forward, or refused): stopping; a person decides" >&2; return 1
++  fi
++  echo "pushed $sha12 to work/$RELEASE_AGENT; waiting for the gate to fast-forward dev"
++  while [ "$waited" -le "$GATE_POLL_MAX" ]; do
++    devsha=$(git ls-remote origin refs/heads/dev | cut -f1)
++    if [ "$devsha" = "$sha" ]; then echo "released $sha12 to dev"; return 0; fi
++    if git ls-remote --tags origin "refs/tags/gate/$RELEASE_AGENT/*" | grep -q "gate/$RELEASE_AGENT/$sha12-fail"; then
++      echo "the gate refused $sha12 (tag gate/$RELEASE_AGENT/$sha12-fail): stopping" >&2; return 1
++    fi
++    if [ -n "$devsha" ] && [ "$devsha" != "$base" ]; then echo "dev moved to ${devsha:0:12}: rebasing and running every gate again"; return 2; fi
++    sleep "$GATE_POLL_SECONDS"; waited=$((waited + GATE_POLL_SECONDS))
++  done
++  echo "timed out after ${GATE_POLL_MAX}s waiting for dev to reach $sha12: stopping; a person decides" >&2; return 1
++}
+ SIGTMP=$(mktemp -d); trap 'rm -rf "$SIGTMP"' EXIT
+ # Every security check (signatures, trailers, leak scan) runs as it stood at the last release, never from the pushed tree
+ # (security@'s control 7 widened, 19 Nov 2026). A missing trusted copy stops the release: git show fails under set -e.
+@@ -39,7 +62,11 @@ for i in 1 2 3 4 5; do
+   trusted leak-scan.mjs >/dev/null
+   trusted check-commits.mjs origin/dev HEAD >/dev/null
+   sigcheck origin/dev HEAD >/dev/null
+-  if git -c push.negotiate=true push -q origin HEAD:dev; then echo "released $(git rev-parse --short HEAD) to dev"; exit 0; fi
+-  sleep $((i * 3))
++  # The dev-gate flow (PrompTugal__IaC #35): never push dev. Push the release commit to work/<agent>, then wait for the
++  # gate to fast-forward dev to the same SHA. A tag gate/<agent>/<sha12>-fail means the gate refused it: stop and report.
++  rc=0; release_via_work || rc=$?
++  [ "$rc" = 0 ] && exit 0
++  [ "$rc" = 2 ] || { echo "release stopped (work/$RELEASE_AGENT)" >&2; exit 1; }
++  sleep $((i * 3))   # rc 2: dev moved; the next pass fetches, rebases and runs every gate again
+ done
+ echo "release failed after 5 attempts" >&2; exit 1
+-- 
+2.43.0
+
