@@ -1,4 +1,4 @@
-From 7ac786b2d816e233797f9889c9717ea9ec58bf1f Mon Sep 17 00:00:00 2001
+From b1d6d241b8bfa85ad2e620b835617a3d8eba3070 Mon Sep 17 00:00:00 2001
 From: "cl-6.cyber" <cl-6.cyber@PrompTugal.dinis>
 Date: Fri, 27 Nov 2026 02:44:13 +0000
 Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: release.sh for the dev-gate:
@@ -7,14 +7,14 @@ Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: release.sh for the dev-gate:
 Agent: cl-6.cyber@PrompTugal.dinis
 Claude-Session: https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk
 ---
- scripts/release.sh | 65 +++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 62 insertions(+), 3 deletions(-)
+ scripts/release.sh | 81 +++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 73 insertions(+), 8 deletions(-)
 
 diff --git a/scripts/release.sh b/scripts/release.sh
-index ca426dc..c2e16f9 100755
+index ca426dc..7c8338b 100755
 --- a/scripts/release.sh
 +++ b/scripts/release.sh
-@@ -10,6 +10,57 @@ git fetch -q origin dev
+@@ -10,6 +10,60 @@ git fetch -q origin dev
  # The signature check runs as it stood at the last release (origin/dev), never from the tree being pushed, so a push
  # cannot change its own checker (videos.b@'s finding via conductor.b@, 19 Nov 2026, 14:01 UTC).
  [ "$(git rev-parse --is-shallow-repository)" = "false" ] || { echo "a shallow clone: fetch the whole history first" >&2; exit 1; }
@@ -22,10 +22,9 @@ index ca426dc..c2e16f9 100755
 +# work/cl-6.cyber is fixed (cl-6.security, 27 Nov 2026); GATE_POLL_SECONDS and GATE_POLL_MAX are for tests (1 to 2 minutes, about 20 minutes).
 +readonly RELEASE_AGENT=cl-6.cyber; GATE_POLL_SECONDS="${GATE_POLL_SECONDS:-90}"; GATE_POLL_MAX="${GATE_POLL_MAX:-1200}"
 +# Returns 0: dev is at our SHA. 2: dev moved to something else (rebase and try again). 1: refused or timed out (stop).
-+WORK_PUSHED=0
 +# dev moved after we pushed: merge origin/dev into our branch with a signed merge commit and push again as a fast-forward
 +# (PrompTugal__IaC #35: no rebase and no force once work/<agent> holds our commit; to drop a refused commit, revert it).
-+merge_ref() {   # merge_ref <ref> : a signed merge commit with our Agent: and Claude-Session: trailers, never a rebase
++merge_ref() {   # merge_ref <ref> : a signed merge commit with our Agent: and Claude-Session: trailers
 +  local agent session
 +  agent=$(git log -1 --format='%(trailers:key=Agent,valueonly,separator=)' HEAD | tr -d '\n')
 +  session=$(git log -1 --format='%(trailers:key=Claude-Session,valueonly,separator=)' HEAD | tr -d '\n')
@@ -35,36 +34,40 @@ index ca426dc..c2e16f9 100755
 +Agent: $agent
 +Claude-Session: $session" "$1" || { git merge --abort 2>/dev/null; return 1; }
 +}
-+merge_dev() { merge_ref origin/dev; }
-+# The remote work branch may hold a commit that dev does not (a refused release, or a push that dev never took). Our next
-+# commit must descend from it or the push is not a fast-forward. Merge it in unless the gate refused it: then stop,
-+# and a person reverts it with a signed revert (never a rewrite).
-+sync_work() {
++# Step 4 of the final recipe: our push was refused as a non-fast-forward, so something else moved. Merge what moved into our
++# branch with signed merge commits (never a rebase or a force once anything is pushed). That is origin/dev and, if
++# work/<agent> holds a commit we lack, that tip too, unless the gate refused it: then stop; a person makes a signed revert.
++merge_for_retry() {
 +  local tip
-+  git fetch -q origin "refs/heads/work/$RELEASE_AGENT:refs/remotes/origin/work/$RELEASE_AGENT" 2>/dev/null || return 0   # no such branch yet
-+  tip=$(git rev-parse "origin/work/$RELEASE_AGENT")
-+  git merge-base --is-ancestor "$tip" HEAD && return 0
-+  if git ls-remote --tags origin "refs/tags/gate/$RELEASE_AGENT/${tip:0:12}-fail" | awk '{print $2}' | grep -qx "refs/tags/gate/$RELEASE_AGENT/${tip:0:12}-fail"; then
-+    echo "work/$RELEASE_AGENT ends at ${tip:0:12}, which the gate refused: revert it with a signed revert, then release again (never rewrite)" >&2; return 1
++  git fetch -q origin dev
++  git merge-base --is-ancestor origin/dev HEAD || merge_ref origin/dev || return 1
++  if git fetch -q origin "refs/heads/work/$RELEASE_AGENT:refs/remotes/origin/work/$RELEASE_AGENT" 2>/dev/null; then
++    tip=$(git rev-parse "origin/work/$RELEASE_AGENT")
++    if ! git merge-base --is-ancestor "$tip" HEAD; then
++      if git ls-remote --tags origin "refs/tags/gate/$RELEASE_AGENT/${tip:0:12}-fail" | awk '{print $2}' | grep -qx "refs/tags/gate/$RELEASE_AGENT/${tip:0:12}-fail"; then
++        echo "work/$RELEASE_AGENT ends at ${tip:0:12}, which the gate refused: make a signed revert of it, then release again (never rewrite)" >&2; return 1
++      fi
++      merge_ref "origin/work/$RELEASE_AGENT" || return 1
++    fi
 +  fi
-+  merge_ref "origin/work/$RELEASE_AGENT"
 +}
++# Returns 0: dev is at our SHA (released). 3: the push was refused as a non-fast-forward (merge and go again). 1: stop.
 +release_via_work() {
-+  local sha sha12 waited=0 devsha base
-+  sha=$(git rev-parse HEAD); sha12=${sha:0:12}; base=$(git rev-parse origin/dev)
-+  # a plain push, never a force: if work/<agent> cannot take it as a fast-forward, stop and say so
-+  if ! git -c push.negotiate=true push -q origin "HEAD:refs/heads/work/$RELEASE_AGENT"; then
-+    echo "could not push work/$RELEASE_AGENT (not a fast-forward, or refused): stopping; a person decides" >&2; return 1
++  local sha sha12 waited=0 devsha out
++  sha=$(git rev-parse HEAD); sha12=${sha:0:12}
++  # step 2: a plain push to work/<agent>; never a force, never dev or main
++  if ! out=$(git -c push.negotiate=true push -q origin "HEAD:refs/heads/work/$RELEASE_AGENT" 2>&1); then
++    if printf '%s' "$out" | grep -qE 'non-fast-forward|fetch first|\[rejected\]'; then echo "work/$RELEASE_AGENT refused the push as a non-fast-forward: merging what moved" >&2; return 3; fi
++    echo "could not push work/$RELEASE_AGENT: $out" >&2; return 1
 +  fi
-+  WORK_PUSHED=1
 +  echo "pushed $sha12 to work/$RELEASE_AGENT; waiting for the gate to fast-forward dev"
++  # step 3: poll until dev is our SHA, the gate refuses it (the exact fail ref), or we time out
 +  while [ "$waited" -le "$GATE_POLL_MAX" ]; do
 +    devsha=$(git ls-remote origin refs/heads/dev | cut -f1)
 +    if [ "$devsha" = "$sha" ]; then echo "released $sha12 to dev"; return 0; fi
 +    if git ls-remote --tags origin "refs/tags/gate/$RELEASE_AGENT/$sha12-fail" | awk '{print $2}' | grep -qx "refs/tags/gate/$RELEASE_AGENT/$sha12-fail"; then
-+      echo "the gate refused $sha12 (tag gate/$RELEASE_AGENT/$sha12-fail): stopping; revert it, never rewrite" >&2; return 1
++      echo "the gate refused $sha12 (tag gate/$RELEASE_AGENT/$sha12-fail): stopping; undo it with a signed revert, never rewrite" >&2; return 1
 +    fi
-+    if [ -n "$devsha" ] && [ "$devsha" != "$base" ]; then echo "dev moved to ${devsha:0:12}: merging it in and running every gate again"; return 2; fi
 +    sleep "$GATE_POLL_SECONDS"; waited=$((waited + GATE_POLL_SECONDS))
 +  done
 +  echo "timed out after ${GATE_POLL_MAX}s waiting for dev to reach $sha12: stopping; a person decides" >&2; return 1
@@ -72,33 +75,44 @@ index ca426dc..c2e16f9 100755
  SIGTMP=$(mktemp -d); trap 'rm -rf "$SIGTMP"' EXIT
  # Every security check (signatures, trailers, leak scan) runs as it stood at the last release, never from the pushed tree
  # (security@'s control 7 widened, 19 Nov 2026). A missing trusted copy stops the release: git show fails under set -e.
-@@ -27,7 +78,11 @@ trusted check-commits.mjs origin/dev HEAD
+@@ -25,10 +79,7 @@ node scripts/test-sectors.mjs
+ trusted leak-scan.mjs
+ trusted check-commits.mjs origin/dev HEAD
  sigcheck origin/dev HEAD
- for i in 1 2 3 4 5; do
-   git fetch -q origin dev
+-for i in 1 2 3 4 5; do
+-  git fetch -q origin dev
 -  git rebase -q origin/dev
-+  if [ "$WORK_PUSHED" = 1 ]; then merge_dev || { echo "could not merge origin/dev into the work branch: stopping; a person decides" >&2; exit 1; }
-+  else
-+    git rebase -q origin/dev   # nothing of this run is pushed yet, so a local rebase rewrites nothing shared
-+    sync_work || { echo "stopping: work/$RELEASE_AGENT needs a person (see above)" >&2; exit 1; }
-+  fi
-   # One gate per line: under set -e a failure inside an && chain does not stop the script (specialist.code@ finding 1).
+-  # One gate per line: under set -e a failure inside an && chain does not stop the script (specialist.code@ finding 1).
++run_gates() {
    node scripts/build.mjs >/dev/null
    node scripts/validate.mjs >/dev/null
-@@ -39,7 +94,11 @@ for i in 1 2 3 4 5; do
+   node scripts/test-leak-scan.mjs >/dev/null
+@@ -39,7 +90,21 @@ for i in 1 2 3 4 5; do
    trusted leak-scan.mjs >/dev/null
    trusted check-commits.mjs origin/dev HEAD >/dev/null
    sigcheck origin/dev HEAD >/dev/null
 -  if git -c push.negotiate=true push -q origin HEAD:dev; then echo "released $(git rev-parse --short HEAD) to dev"; exit 0; fi
 -  sleep $((i * 3))
-+  # The dev-gate flow (PrompTugal__IaC #35): never push dev. Push the release commit to work/<agent>, then wait for the
-+  # gate to fast-forward dev to the same SHA. A tag gate/<agent>/<sha12>-fail means the gate refused it: stop and report.
-+  rc=0; release_via_work || rc=$?
-+  [ "$rc" = 0 ] && exit 0
-+  [ "$rc" = 2 ] || { echo "release stopped (work/$RELEASE_AGENT)" >&2; exit 1; }
-+  sleep $((i * 3))   # rc 2: dev moved; the next pass fetches, merges origin/dev (signed, no rebase) and runs every gate again
- done
- echo "release failed after 5 attempts" >&2; exit 1
+-done
+-echo "release failed after 5 attempts" >&2; exit 1
++}
++# Bounded rounds (final recipe): round 1 builds on origin/dev; a later round only follows a non-fast-forward refusal.
++MERGE_NEXT=0
++release_rounds() {
++  local i rc
++  for i in 1 2 3; do
++    git fetch -q origin dev
++    if [ "$MERGE_NEXT" = 1 ]; then merge_for_retry || { echo "stopping: work/$RELEASE_AGENT needs a person (see above)" >&2; return 1; }
++    else git rebase -q origin/dev; fi   # nothing of this run is pushed yet, so a local rebase rewrites nothing shared
++    run_gates
++    rc=0; release_via_work || rc=$?
++    [ "$rc" = 0 ] && return 0
++    [ "$rc" = 3 ] || return 1
++    MERGE_NEXT=1
++  done
++  echo "release failed after 3 rounds" >&2; return 1
++}
++release_rounds || exit 1
 -- 
 2.43.0
 
