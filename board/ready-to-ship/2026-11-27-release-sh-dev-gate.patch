@@ -1,4 +1,4 @@
-From b1d6d241b8bfa85ad2e620b835617a3d8eba3070 Mon Sep 17 00:00:00 2001
+From e1296fb8f748d3b4a8782958223d5c8a37f4f725 Mon Sep 17 00:00:00 2001
 From: "cl-6.cyber" <cl-6.cyber@PrompTugal.dinis>
 Date: Fri, 27 Nov 2026 02:44:13 +0000
 Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: release.sh for the dev-gate:
@@ -7,20 +7,24 @@ Subject: [PATCH] cl-6.cyber@PrompTugal.dinis: release.sh for the dev-gate:
 Agent: cl-6.cyber@PrompTugal.dinis
 Claude-Session: https://claude.ai/code/session_016CrbJLwU9iQ41Xv3q2VZwk
 ---
- scripts/release.sh | 81 +++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 73 insertions(+), 8 deletions(-)
+ scripts/release.sh | 85 +++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 77 insertions(+), 8 deletions(-)
 
 diff --git a/scripts/release.sh b/scripts/release.sh
-index ca426dc..7c8338b 100755
+index ca426dc..fabb8d0 100755
 --- a/scripts/release.sh
 +++ b/scripts/release.sh
-@@ -10,6 +10,60 @@ git fetch -q origin dev
+@@ -10,6 +10,64 @@ git fetch -q origin dev
  # The signature check runs as it stood at the last release (origin/dev), never from the tree being pushed, so a push
  # cannot change its own checker (videos.b@'s finding via conductor.b@, 19 Nov 2026, 14:01 UTC).
  [ "$(git rev-parse --is-shallow-repository)" = "false" ] || { echo "a shallow clone: fetch the whole history first" >&2; exit 1; }
 +# --- the dev-gate release step -------------------------------------------------------------------------------------
 +# work/cl-6.cyber is fixed (cl-6.security, 27 Nov 2026); GATE_POLL_SECONDS and GATE_POLL_MAX are for tests (1 to 2 minutes, about 20 minutes).
 +readonly RELEASE_AGENT=cl-6.cyber; GATE_POLL_SECONDS="${GATE_POLL_SECONDS:-90}"; GATE_POLL_MAX="${GATE_POLL_MAX:-1200}"
++# timing only, but bounded: whole numbers, a poll of 1 to 300 s and a wait of at most 3600 s (cl-6.security, 27 Nov 2026)
++[[ "$GATE_POLL_SECONDS" =~ ^[0-9]+$ && "$GATE_POLL_MAX" =~ ^[0-9]+$ ]] || { echo "GATE_POLL_SECONDS and GATE_POLL_MAX must be whole numbers" >&2; exit 1; }
++[ "$GATE_POLL_SECONDS" -ge 1 ] && [ "$GATE_POLL_SECONDS" -le 300 ] || { echo "GATE_POLL_SECONDS must be 1 to 300" >&2; exit 1; }
++[ "$GATE_POLL_MAX" -le 3600 ] || { echo "GATE_POLL_MAX must be at most 3600" >&2; exit 1; }
 +# Returns 0: dev is at our SHA. 2: dev moved to something else (rebase and try again). 1: refused or timed out (stop).
 +# dev moved after we pushed: merge origin/dev into our branch with a signed merge commit and push again as a fast-forward
 +# (PrompTugal__IaC #35: no rebase and no force once work/<agent> holds our commit; to drop a refused commit, revert it).
@@ -75,7 +79,7 @@ index ca426dc..7c8338b 100755
  SIGTMP=$(mktemp -d); trap 'rm -rf "$SIGTMP"' EXIT
  # Every security check (signatures, trailers, leak scan) runs as it stood at the last release, never from the pushed tree
  # (security@'s control 7 widened, 19 Nov 2026). A missing trusted copy stops the release: git show fails under set -e.
-@@ -25,10 +79,7 @@ node scripts/test-sectors.mjs
+@@ -25,10 +83,7 @@ node scripts/test-sectors.mjs
  trusted leak-scan.mjs
  trusted check-commits.mjs origin/dev HEAD
  sigcheck origin/dev HEAD
@@ -87,7 +91,7 @@ index ca426dc..7c8338b 100755
    node scripts/build.mjs >/dev/null
    node scripts/validate.mjs >/dev/null
    node scripts/test-leak-scan.mjs >/dev/null
-@@ -39,7 +90,21 @@ for i in 1 2 3 4 5; do
+@@ -39,7 +94,21 @@ for i in 1 2 3 4 5; do
    trusted leak-scan.mjs >/dev/null
    trusted check-commits.mjs origin/dev HEAD >/dev/null
    sigcheck origin/dev HEAD >/dev/null
